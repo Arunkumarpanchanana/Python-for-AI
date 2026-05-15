@@ -34,6 +34,8 @@
     </div>
 
     <div class="tab-panel learn-content" data-panel="learn">
+      <div class="tip-box"><i class="fas fa-key"></i><div><strong>Need API keys?</strong> Go to <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> (Claude) or <a href="https://platform.openai.com" target="_blank">platform.openai.com</a> (OpenAI) to create free API keys. See <a href="/Python-for-AI/sessions/intermediate/13-openai-api.html">Session 13</a> for a full step-by-step setup guide including Colab Secrets.</div></div>
+
       <h2>What Is RAG and Why Does It Matter?</h2>
       <p>Retrieval-Augmented Generation (RAG) solves one of the biggest LLM limitations: models only know what was in their training data. RAG lets you give any LLM access to your own documents — PDFs, wikis, databases — at query time, without fine-tuning.</p>
       <p>The pipeline: <strong>Chunk</strong> documents → <strong>Embed</strong> them into vectors → <strong>Store</strong> in a vector database → At query time: <strong>Embed</strong> the question → <strong>Retrieve</strong> similar chunks → <strong>Generate</strong> answer with the retrieved context.</p>

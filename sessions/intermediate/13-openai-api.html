@@ -34,6 +34,62 @@
     </div>
 
     <div class="tab-panel learn-content" data-panel="learn">
+      <h2>Step 0: Get Your API Keys</h2>
+      <p>Before writing a single line of code, you need API credentials. Here's exactly how to get them for both services — it takes about 5 minutes each.</p>
+
+      <div class="compare-grid">
+        <div class="compare-card">
+          <h4><i class="fas fa-robot"></i> Anthropic (Claude)</h4>
+          <ol style="padding-left:1.2rem;font-size:.9rem;line-height:2;">
+            <li>Go to <a href="https://console.anthropic.com" target="_blank" style="color:var(--brand);font-weight:600;">console.anthropic.com</a></li>
+            <li>Click <strong>Sign Up</strong> — use email or Google</li>
+            <li>Verify your email</li>
+            <li>Go to <strong>API Keys</strong> in the left sidebar</li>
+            <li>Click <strong>Create Key</strong> — give it a name</li>
+            <li>Copy the key (starts with <code>sk-ant-</code>)</li>
+            <li>New accounts get free credits to start</li>
+          </ol>
+        </div>
+        <div class="compare-card">
+          <h4><i class="fas fa-brain"></i> OpenAI (GPT-4)</h4>
+          <ol style="padding-left:1.2rem;font-size:.9rem;line-height:2;">
+            <li>Go to <a href="https://platform.openai.com" target="_blank" style="color:var(--brand);font-weight:600;">platform.openai.com</a></li>
+            <li>Click <strong>Sign Up</strong> — use email or Google</li>
+            <li>Verify your phone number</li>
+            <li>Go to <strong>API Keys</strong> (top-right menu)</li>
+            <li>Click <strong>Create new secret key</strong></li>
+            <li>Copy the key (starts with <code>sk-</code>)</li>
+            <li>Add a payment method under Billing to use paid models</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="warning-box"><i class="fas fa-exclamation-triangle"></i><div><strong>Store keys safely — immediately.</strong> Copy your key to a password manager or secure note the moment you create it. You cannot view it again after closing the dialog. Never paste it into code you commit to GitHub — use environment variables or Colab Secrets (covered below).</div></div>
+
+      <h2>Setting Up Your Key in Google Colab</h2>
+      <p>The safest way to use API keys in Colab is the built-in <strong>Secrets</strong> manager — your key is stored encrypted and never appears in your notebook code.</p>
+      <ol style="padding-left:1.5rem;line-height:2.2;margin-bottom:1.25rem;">
+        <li>In Colab, click the <strong>🔑 key icon</strong> in the left sidebar</li>
+        <li>Click <strong>Add new secret</strong></li>
+        <li>Name: <code>ANTHROPIC_API_KEY</code> (or <code>OPENAI_API_KEY</code>)</li>
+        <li>Value: paste your key</li>
+        <li>Toggle <strong>Notebook access</strong> to ON</li>
+      </ol>
+      <pre><code class="language-python"># Then in your notebook cell:
+from google.colab import userdata
+api_key = userdata.get("ANTHROPIC_API_KEY")
+print("Key loaded:", api_key[:10], "...")  # show first 10 chars only</code></pre>
+
+      <h2>Setting Up Your Key Locally</h2>
+      <pre><code class="language-python"># On Mac/Linux — add to ~/.zshrc or ~/.bashrc:
+export ANTHROPIC_API_KEY="sk-ant-your-key-here"
+export OPENAI_API_KEY="sk-your-key-here"
+
+# Then in Python:
+import os
+key = os.environ["ANTHROPIC_API_KEY"]</code></pre>
+      <div class="tip-box"><i class="fas fa-star"></i><div><strong>Tip for local dev:</strong> Install <code>python-dotenv</code> and create a <code>.env</code> file. Add <code>.env</code> to <code>.gitignore</code>. Then <code>from dotenv import load_dotenv; load_dotenv()</code> at the top of your script loads all keys automatically.</div></div>
+
       <h2>Calling LLMs from Python</h2>
       <p>The OpenAI and Anthropic APIs share a similar architecture: you send a messages array to a model endpoint and get a completion back. Both charge per token. Both support system prompts, multi-turn conversations, and streaming. Learning one makes the other trivial.</p>
       <div class="callout callout-info"><i class="fas fa-lightbulb"></i><div><strong>Mental model:</strong> You are not "talking to AI" — you are calling a function that takes text in and returns text out. The skill is crafting the right input to get the right output.</div></div>
@@ -125,9 +181,10 @@ print()  # newline at end</code></pre>
         </div>
         <div class="lab-steps">
           <div class="lab-step">
-            <div class="lab-step-header"><span class="lab-step-num">1</span><h3>Set up your API key</h3></div>
+            <div class="lab-step-header"><span class="lab-step-num">1</span><h3>Set up your API key in Colab</h3></div>
             <div class="lab-step-body">
-              <p>In Colab, click the key icon (Secrets) on the left sidebar. Add <code>ANTHROPIC_API_KEY</code> with your key. Then:</p>
+              <p>Don't have a key yet? Get one free at <a href="https://console.anthropic.com" target="_blank" style="color:var(--brand);font-weight:600;">console.anthropic.com</a> → API Keys → Create Key.</p>
+              <p style="margin-top:.6rem;">In Colab, click the <strong>🔑 key icon</strong> in the left sidebar → <strong>Add new secret</strong> → Name: <code>ANTHROPIC_API_KEY</code>, paste your key, toggle Notebook access ON. Then:</p>
               <pre><code class="language-python">from google.colab import userdata
 import anthropic
 
