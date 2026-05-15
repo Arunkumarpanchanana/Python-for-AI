@@ -24,31 +24,40 @@
     </div>
   </div>
   <div class="section-grid-wrapper">
-    <div class="session-grid" id="session-grid"></div>
+    <div class="session-grid" id="session-grid">
+      <p id="loading-msg" style="color:#78716c;grid-column:1/-1;">Loading sessions…</p>
+    </div>
   </div>
 </div>
 <div id="footer-placeholder"></div>
 <script src="/Python-for-AI/assets/js/progress.js"></script>
 <script src="/Python-for-AI/assets/js/main.js"></script>
 <script>
-window.SECTION_FILTER = 'beginner';
 document.addEventListener('DOMContentLoaded', () => {
   fetch('/Python-for-AI/data/sessions.json')
-    .then(r => r.json())
+    .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
     .then(data => {
       const sec = data.sections.find(s => s.id === 'beginner');
       if (!sec) return;
       const grid = document.getElementById('session-grid');
-      const progress = Progress.get();
+      const p = Progress.get();
+      let html = '';
       sec.sessions.forEach(s => {
-        const done = progress.sessions?.[s.id]?.quizPassed;
-        grid.innerHTML += `
-          <a href="/Python-for-AI/${s.path.replace('/Python-for-AI/','')}" class="session-card ${done?'completed':''}">
-            <div class="session-card-badge badge-beginner"><i class="fas fa-seedling"></i> Beginner</div>
-            <h3>${s.title}</h3>
-            <div class="session-card-meta"><span><i class="fas fa-clock"></i> ${s.duration}</span>${done?'<span class="done-badge"><i class="fas fa-check-circle"></i> Done</span>':''}</div>
-          </a>`;
+        const done = p.sessions?.[s.id]?.quizPassed;
+        html += `<a href="${s.path}" class="session-card${done?' completed':''}">
+          <div class="session-card-badge badge-beginner"><i class="fas fa-seedling"></i> Beginner</div>
+          <h3 style="font-size:.95rem;font-weight:600;line-height:1.35;margin:.25rem 0;">${s.title}</h3>
+          <div class="session-card-meta">
+            <span><i class="fas fa-clock"></i> ${s.duration}</span>
+            ${done ? '<span class="done-badge"><i class="fas fa-check-circle"></i> Done</span>' : ''}
+          </div>
+        </a>`;
       });
+      grid.innerHTML = html;
+    })
+    .catch(e => {
+      document.getElementById('loading-msg').textContent = 'Could not load sessions. Try refreshing.';
+      console.error('sessions.json fetch failed:', e);
     });
 });
 </script>

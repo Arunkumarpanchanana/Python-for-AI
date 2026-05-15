@@ -200,7 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
         sec.sessions.forEach(s => {
           const done = sessions[s.id]?.quizPassed;
           grid.innerHTML += `
-            <a href="/Python-for-AI/${s.path.replace('/Python-for-AI/','')}" class="session-card ${done?'completed':''}">
+            <a href="${s.path}" class="session-card ${done?'completed':''}" style="text-decoration:none;color:inherit;">
               <div class="session-card-badge badge-${sec.id}"><i class="fas fa-${iconMap[sec.id]}"></i> ${sec.label.replace(/[🌱💻🚀]/g,'').trim()}</div>
               <h3>${s.title}</h3>
               <div class="session-card-meta">

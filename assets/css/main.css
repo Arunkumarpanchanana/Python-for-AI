@@ -160,6 +160,7 @@ pre code { background:none !important; border:none !important; padding:0; font-s
 
 /* ===== SESSION CARDS ===== */
 .session-card {
+  display:block; text-decoration:none; color:var(--text);
   background:var(--surface); border:1px solid var(--border); border-radius:14px;
   padding:1.25rem; transition:all 0.2s; cursor:pointer; position:relative; overflow:hidden; box-shadow:var(--shadow-sm);
 }

@@ -33,7 +33,7 @@ function initNav() {
 function updateProgressPill() {
   if (!window.Progress) return;
   const count = Progress.getCompletedCount();
-  document.querySelectorAll('.nav-progress-count').forEach(p => { p.textContent = `${count}/51 completed`; });
+  document.querySelectorAll('.nav-progress-count').forEach(p => { p.textContent = `${count}/22 completed`; });
 }
 
 document.addEventListener('click', e => {
