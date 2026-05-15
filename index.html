@@ -171,7 +171,7 @@
 <script src="/Python-for-AI/assets/js/main.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  const p = Progress.get();
+  const p = Progress.getAllProgress();
   const sessions = p.sessions || {};
   const completed = Object.values(sessions).filter(s => s.quizPassed).length;
   const pct = Math.round((completed / 22) * 100);

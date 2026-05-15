@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const sec = data.sections.find(s => s.id === 'beginner');
       if (!sec) return;
       const grid = document.getElementById('session-grid');
-      const p = Progress.get();
+      const p = Progress.getAllProgress();
       let html = '';
       sec.sessions.forEach(s => {
         const done = p.sessions?.[s.id]?.quizPassed;
