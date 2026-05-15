@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Object-Oriented Programming - Python for AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/main.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/session.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/quiz.css"/>
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="session-page-wrapper">
+  <aside id="session-sidebar"></aside>
+  <main>
+    <header class="session-header">
+      <div class="session-breadcrumb"><a href="/Python-for-AI/">Home</a><span class="sep">&#8250;</span><a href="/Python-for-AI/sections/beginner.html">Beginner</a><span class="sep">&#8250;</span><span>Session 07</span></div>
+      <h1 class="session-title">Object-Oriented Programming</h1>
+      <p class="session-tagline">Build reusable, organised code with classes — the pattern behind every major AI library.</p>
+      <div class="session-meta">
+        <span><i class="fas fa-clock"></i> 35 min</span>
+        <span><span class="badge badge-beginner"><i class="fas fa-seedling"></i> Beginner</span></span>
+        <span><i class="fas fa-flask"></i> Hands-on Lab</span>
+      </div>
+    </header>
+    <div class="tab-nav">
+      <button class="tab-btn active" data-tab="learn"><i class="fas fa-book-open"></i> Learn</button>
+      <button class="tab-btn" data-tab="lab"><i class="fas fa-flask"></i> Lab</button>
+      <button class="tab-btn" data-tab="quiz"><i class="fas fa-check-circle"></i> Quiz</button>
+    </div>
+    <div class="tab-panel learn-content" data-panel="learn"><h2>Classes and Objects</h2><pre><code class="language-python">class Dog:
+    species = "Canis familiaris"
+    def __init__(self, name, breed):
+        self.name  = name
+        self.breed = breed
+    def speak(self):
+        return f"{self.name} says Woof!"
+    def __str__(self):
+        return f"Dog({self.name}, {self.breed})"
+
+rex = Dog("Rex", "Labrador")
+print(rex.speak())
+print(str(rex))</code></pre><h2>Inheritance</h2><pre><code class="language-python">class Animal:
+    def __init__(self, name): self.name = name
+    def speak(self): return f"{self.name} makes a sound"
+
+class Cat(Animal):
+    def speak(self): return f"{self.name} says Meow!"
+
+class Duck(Animal):
+    def speak(self): return f"{self.name} says Quack!"
+
+for a in [Cat("Whiskers"), Duck("Donald")]:
+    print(a.speak())</code></pre><h2>Magic Methods</h2><pre><code class="language-python">class Vector:
+    def __init__(self,x,y): self.x=x; self.y=y
+    def __repr__(self): return f"Vector({self.x},{self.y})"
+    def __add__(self,o): return Vector(self.x+o.x,self.y+o.y)
+    def __len__(self): return 2
+
+v1=Vector(1,2); v2=Vector(3,4)
+print(v1+v2)   # Vector(4,6)</code></pre><div class="info-box"><i class="fas fa-info-circle"></i><div><strong>When to use OOP:</strong> data + behaviour belong together, you need multiple instances, or you're building something others will extend.</div></div></div>
+    <div class="tab-panel" data-panel="lab" style="display:none"><div class="lab-section"><div class="lab-header"><h2><i class="fas fa-flask"></i> Lab: ChatHistory Class</h2><p>Build an OOP conversation manager — core of any chatbot.</p></div><div class="lab-steps"><div class="lab-step"><div class="lab-step-header"><span class="lab-step-num">1</span><h3>Define the class</h3></div><div class="lab-step-body"><pre><code class="language-python">import json
+class ChatHistory:
+    def __init__(self, system="You are a helpful assistant"):
+        self.system = system; self.messages = []
+    def add(self, role, content):
+        self.messages.append({"role":role,"content":content})
+    def get_all(self):
+        return [{"role":"system","content":self.system}] + self.messages
+    def clear(self): self.messages = []
+    def __len__(self): return len(self.messages)
+    def __str__(self): return f"ChatHistory({len(self)} messages)"</code></pre></div></div><div class="lab-step"><div class="lab-step-header"><span class="lab-step-num">2</span><h3>Use it</h3></div><div class="lab-step-body"><pre><code class="language-python">chat = ChatHistory("You are a Python tutor.")
+chat.add("user", "What is a list?")
+chat.add("assistant", "A list is an ordered collection...")
+print(chat)               # ChatHistory(2 messages)
+print(chat.get_all()[0])  # system prompt</code></pre></div></div><div class="lab-step"><div class="lab-step-header"><span class="lab-step-num">3</span><h3>Save to JSON</h3></div><div class="lab-step-body"><pre><code class="language-python">with open("chat.json","w") as f:
+    json.dump(chat.get_all(), f, indent=2)
+print("Saved!")</code></pre></div></div></div></div></div>
+    <div class="tab-panel" data-panel="quiz" style="display:none"><div id="quiz-container"></div></div>
+    <div class="session-nav-buttons"><a href="/Python-for-AI/sessions/beginner/06-files-errors.html" class="session-nav-btn prev" id="prev-session"><span class="nav-label">Previous</span><span class="nav-title">&larr; File Handling & Error Handling</span></a><a href="/Python-for-AI/sessions/beginner/08-modules-packages.html" class="session-nav-btn next" id="next-session"><span class="nav-label">Next</span><span class="nav-title">Modules, Packages & the Ecosystem &rarr;</span></a></div>
+  </main>
+</div>
+<div id="footer-placeholder"></div>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+<script src="/Python-for-AI/assets/js/progress.js"></script>
+<script src="/Python-for-AI/assets/js/quiz.js"></script>
+<script src="/Python-for-AI/assets/js/lab.js"></script>
+<script src="/Python-for-AI/assets/js/session.js"></script>
+<script src="/Python-for-AI/assets/js/main.js"></script>
+<script>
+window.SESSION_META = {id:'py-07',title:'Object-Oriented Programming',section:'beginner',quizData:[{id:'q1',type:"mcq",question:'What does self refer to?',options:[{text:'The current instance',correct:true},{text:'The class itself',correct:false},{text:'Parent class',correct:false},{text:'A global variable',correct:false}],explanation:'self refers to the specific object the method is called on.'},{id:'q2',type:"mcq",question:'What is __init__ for?',options:[{text:'Initialize instance attributes on creation',correct:true},{text:'Define class constants',correct:false},{text:'Make function private',correct:false},{text:'Import modules',correct:false}],explanation:'__init__ is the constructor — runs when you create a new object.'},{id:'q3',type:"mcq",question:'How do you inherit from a parent?',options:[{text:'class Child(Parent):',correct:true},{text:'class Child extends Parent:',correct:false},{text:'class Child inherits Parent:',correct:false},{text:'class Child: Parent',correct:false}],explanation:'Python uses class Child(Parent): for inheritance.'},{id:'q4',type:"mcq",question:'What does __str__ control?',options:[{text:'What print(obj) displays',correct:true},{text:"Object's ID",correct:false},{text:'Whether iterable',correct:false},{text:"Object's length",correct:false}],explanation:'__str__ defines the string shown by print() and str().'},{id:'q5',type:"truefalse",question:'A Python class can only inherit from one parent.',correctAnswer:false,explanation:'Python supports multiple inheritance: class Child(Parent1, Parent2).'}]};
+</script>
+</body></html>

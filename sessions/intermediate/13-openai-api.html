@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Using the OpenAI & Claude API — Python for AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/main.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/session.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/quiz.css"/>
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="session-page-wrapper">
+  <aside id="session-sidebar"></aside>
+  <main>
+    <header class="session-header">
+      <div class="session-breadcrumb"><a href="/Python-for-AI/">Home</a><span class="sep">›</span><a href="/Python-for-AI/sections/intermediate.html">Intermediate</a><span class="sep">›</span><span>Session 13</span></div>
+      <h1 class="session-title">Using the OpenAI & Claude API</h1>
+      <p class="session-tagline">Call GPT-4 and Claude from Python — send messages, stream responses, manage conversation history, and control output.</p>
+      <div class="session-meta">
+        <span><i class="fas fa-clock"></i> 35 min</span>
+        <span><span class="badge badge-intermediate"><i class="fas fa-laptop-code"></i> Intermediate</span></span>
+        <span><i class="fas fa-flask"></i> Hands-on Lab</span>
+        <span><i class="fas fa-check-circle"></i> 5 Quiz Questions</span>
+      </div>
+    </header>
+    <div class="tab-nav">
+      <button class="tab-btn active" data-tab="learn"><i class="fas fa-book-open"></i> Learn</button>
+      <button class="tab-btn" data-tab="lab"><i class="fas fa-flask"></i> Lab</button>
+      <button class="tab-btn" data-tab="quiz"><i class="fas fa-check-circle"></i> Quiz</button>
+    </div>
+
+    <div class="tab-panel learn-content" data-panel="learn">
+      <h2>Calling LLMs from Python</h2>
+      <p>The OpenAI and Anthropic APIs share a similar architecture: you send a messages array to a model endpoint and get a completion back. Both charge per token. Both support system prompts, multi-turn conversations, and streaming. Learning one makes the other trivial.</p>
+      <div class="callout callout-info"><i class="fas fa-lightbulb"></i><div><strong>Mental model:</strong> You are not "talking to AI" — you are calling a function that takes text in and returns text out. The skill is crafting the right input to get the right output.</div></div>
+
+      <h2>OpenAI API</h2>
+      <pre><code class="language-python">pip install openai</code></pre>
+      <pre><code class="language-python">from openai import OpenAI
+import os
+
+client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+
+# Single message
+response = client.chat.completions.create(
+    model="gpt-4o-mini",
+    messages=[
+        {"role": "system", "content": "You are a helpful Python tutor."},
+        {"role": "user",   "content": "Explain list comprehensions in 2 sentences."}
+    ],
+    temperature=0.7,
+    max_tokens=200
+)
+
+print(response.choices[0].message.content)
+print("Tokens used:", response.usage.total_tokens)</code></pre>
+
+      <h2>Claude (Anthropic) API</h2>
+      <pre><code class="language-python">pip install anthropic</code></pre>
+      <pre><code class="language-python">import anthropic, os
+
+client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+
+message = client.messages.create(
+    model="claude-opus-4-5",
+    max_tokens=1024,
+    system="You are an expert Python for AI instructor.",
+    messages=[
+        {"role": "user", "content": "What is the difference between a list and a tuple?"}
+    ]
+)
+
+print(message.content[0].text)
+print("Input tokens:", message.usage.input_tokens)
+print("Output tokens:", message.usage.output_tokens)</code></pre>
+
+      <h2>Multi-turn Conversations</h2>
+      <pre><code class="language-python">from openai import OpenAI
+client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+
+history = [{"role": "system", "content": "You are a Python tutor."}]
+
+while True:
+    user_input = input("You: ").strip()
+    if user_input.lower() in ("quit", "exit"): break
+    history.append({"role": "user", "content": user_input})
+    response = client.chat.completions.create(
+        model="gpt-4o-mini", messages=history
+    )
+    reply = response.choices[0].message.content
+    history.append({"role": "assistant", "content": reply})
+    print(f"AI: {reply}\n")</code></pre>
+
+      <h2>Streaming Responses</h2>
+      <pre><code class="language-python"># Stream tokens as they arrive -- better UX for long outputs
+stream = client.chat.completions.create(
+    model="gpt-4o-mini",
+    messages=[{"role": "user", "content": "Explain RAG in detail."}],
+    stream=True
+)
+for chunk in stream:
+    if chunk.choices[0].delta.content:
+        print(chunk.choices[0].delta.content, end="", flush=True)
+print()  # newline at end</code></pre>
+
+      <h2>Key Parameters</h2>
+      <div class="table-wrap"><table class="data-table"><thead><tr><th>Parameter</th><th>What it does</th><th>Typical value</th></tr></thead><tbody>
+        <tr><td>temperature</td><td>Randomness (0=deterministic, 2=very random)</td><td>0.7 for creative, 0.0 for factual</td></tr>
+        <tr><td>max_tokens</td><td>Maximum length of response</td><td>500–4000 depending on task</td></tr>
+        <tr><td>top_p</td><td>Nucleus sampling (alternative to temperature)</td><td>Usually leave at 1.0</td></tr>
+        <tr><td>system</td><td>Claude: separate field. OpenAI: role="system" message</td><td>Persona + task instructions</td></tr>
+      </tbody></table></div>
+
+    </div>
+
+    <div class="tab-panel" data-panel="lab" style="display:none">
+      <div class="lab-section">
+        <div class="lab-header">
+          <h2><i class="fas fa-flask"></i> Lab: Build an AI Code Reviewer</h2>
+          <p>Use the Claude or OpenAI API to build a tool that reviews Python code and suggests improvements.</p>
+        </div>
+        <div class="lab-steps">
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">1</span><h3>Set up your API key</h3></div>
+            <div class="lab-step-body">
+              <p>In Colab, click the key icon (Secrets) on the left sidebar. Add <code>ANTHROPIC_API_KEY</code> with your key. Then:</p>
+              <pre><code class="language-python">from google.colab import userdata
+import anthropic
+
+api_key = userdata.get("ANTHROPIC_API_KEY")
+client = anthropic.Anthropic(api_key=api_key)
+print("Client ready!")</code></pre>
+            </div>
+          </div>
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">2</span><h3>Write the code reviewer function</h3></div>
+            <div class="lab-step-body">
+              <pre><code class="language-python">def review_code(code: str) -> str:
+    message = client.messages.create(
+        model="claude-opus-4-5",
+        max_tokens=1024,
+        system="You are a senior Python engineer. Review code for: bugs, style issues, performance problems, and security risks. Be specific and constructive.",
+        messages=[{"role": "user", "content": f"Review this Python code:\n\n```python\n{code}\n```"}]
+    )
+    return message.content[0].text
+
+print("Function defined!")</code></pre>
+            </div>
+          </div>
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">3</span><h3>Test it on some bad code</h3></div>
+            <div class="lab-step-body">
+              <pre><code class="language-python">bad_code = """
+def get_user(id):
+    import sqlite3
+    conn = sqlite3.connect("db.sqlite")
+    cursor = conn.cursor()
+    cursor.execute(f"SELECT * FROM users WHERE id={id}")
+    return cursor.fetchone()
+"""
+
+feedback = review_code(bad_code)
+print(feedback)</code></pre>
+            </div>
+          </div>
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">4</span><h3>Review your own code</h3></div>
+            <div class="lab-step-body">
+              <p>Paste any Python function you have written and run the reviewer on it. Read the AI feedback carefully.</p>
+              <pre><code class="language-python">my_code = """
+# Paste your own Python function here
+def my_function():
+    pass
+"""
+print(review_code(my_code))</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="tab-panel" data-panel="quiz" style="display:none">
+      <div id="quiz-container"></div>
+    </div>
+
+    <div class="session-nav-buttons">
+      <a href="/Python-for-AI/sessions/intermediate/12-apis-requests.html" class="session-nav-btn prev" id="prev-session">
+        <span class="nav-label">Previous</span>
+        <span class="nav-title">← Working with APIs & HTTP</span>
+      </a>
+      <a href="/Python-for-AI/sessions/intermediate/14-async-python.html" class="session-nav-btn next" id="next-session">
+        <span class="nav-label">Next</span>
+        <span class="nav-title">Async Python & Concurrency →</span>
+      </a>
+    </div>
+  </main>
+</div>
+<div id="footer-placeholder"></div>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+<script src="/Python-for-AI/assets/js/progress.js"></script>
+<script src="/Python-for-AI/assets/js/quiz.js"></script>
+<script src="/Python-for-AI/assets/js/lab.js"></script>
+<script src="/Python-for-AI/assets/js/session.js"></script>
+<script src="/Python-for-AI/assets/js/main.js"></script>
+<script>
+window.SESSION_META = {
+  id: 'py-13',
+  title: 'Using the OpenAI & Claude API',
+  section: 'intermediate',
+  quizData: [
+    { id:'q1', type:'mcq', question:"In the OpenAI API, what role is used to set the AI's persona and instructions?",
+      options:[
+        {text:'system',correct:true},
+        {text:'assistant',correct:false},
+        {text:'instruction',correct:false},
+        {text:'prompt',correct:false},
+      ],
+      explanation:'The "system" role message sets the AI\'s persona and rules. "user" is the human input. "assistant" is the AI response.' },
+    { id:'q2', type:'mcq', question:'What does temperature=0.0 produce?',
+      options:[
+        {text:'Deterministic, consistent output (always picks highest probability token)',correct:true},
+        {text:'Maximum randomness and creativity',correct:false},
+        {text:'An error — temperature cannot be 0',correct:false},
+        {text:'Shorter responses',correct:false},
+      ],
+      explanation:'Temperature 0 means always pick the single most likely next token, producing reproducible output. Useful for code and factual tasks.' },
+    { id:'q3', type:'mcq', question:'What is the correct way to read the text from a Claude API response?',
+      options:[
+        {text:'message.content[0].text',correct:true},
+        {text:'message.choices[0].message.content',correct:false},
+        {text:'message.text',correct:false},
+        {text:'message.response',correct:false},
+      ],
+      explanation:"Claude's API returns content as a list of content blocks. message.content[0].text gets the text of the first block." },
+    { id:'q4', type:'truefalse', question:'Streaming responses with stream=True reduces the total number of tokens charged.',
+      correctAnswer:false,
+      explanation:'Streaming does not change the token count or cost — it just delivers tokens to your code as they are generated, improving perceived latency.' },
+    { id:'q5', type:'mcq', question:'Why should you never hardcode API keys in your source code?',
+      options:[
+        {text:'Keys committed to GitHub can be stolen by bots that scan public repos within minutes',correct:true},
+        {text:'The API will reject hardcoded keys',correct:false},
+        {text:'It makes the code run slower',correct:false},
+        {text:'Python cannot handle string API keys',correct:false},
+      ],
+      explanation:'Bots actively scan GitHub and other platforms for exposed API keys. A committed key can be exploited within minutes of pushing.' },
+  ]
+};
+</script>
+</body>
+</html>

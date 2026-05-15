@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Working with APIs & HTTP — Python for AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/main.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/session.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/quiz.css"/>
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="session-page-wrapper">
+  <aside id="session-sidebar"></aside>
+  <main>
+    <header class="session-header">
+      <div class="session-breadcrumb"><a href="/Python-for-AI/">Home</a><span class="sep">›</span><a href="/Python-for-AI/sections/intermediate.html">Intermediate</a><span class="sep">›</span><span>Session 12</span></div>
+      <h1 class="session-title">Working with APIs & HTTP</h1>
+      <p class="session-tagline">Make HTTP requests, handle JSON, authenticate with API keys, and build robust retry logic for production AI apps.</p>
+      <div class="session-meta">
+        <span><i class="fas fa-clock"></i> 30 min</span>
+        <span><span class="badge badge-intermediate"><i class="fas fa-laptop-code"></i> Intermediate</span></span>
+        <span><i class="fas fa-flask"></i> Hands-on Lab</span>
+        <span><i class="fas fa-check-circle"></i> 5 Quiz Questions</span>
+      </div>
+    </header>
+    <div class="tab-nav">
+      <button class="tab-btn active" data-tab="learn"><i class="fas fa-book-open"></i> Learn</button>
+      <button class="tab-btn" data-tab="lab"><i class="fas fa-flask"></i> Lab</button>
+      <button class="tab-btn" data-tab="quiz"><i class="fas fa-check-circle"></i> Quiz</button>
+    </div>
+
+    <div class="tab-panel learn-content" data-panel="learn">
+      <h2>What Is an API and Why Does AI Need Them?</h2>
+      <p>An API (Application Programming Interface) is a contract between two programs. You send a request with data; the server returns a response. Every AI capability you use in production — GPT-4, Claude, Stable Diffusion, Google Vision — is accessed via an HTTP API. You cannot build AI apps without knowing how HTTP works.</p>
+      <div class="callout callout-info"><i class="fas fa-lightbulb"></i><div><strong>The key mental model:</strong> Every API call is just: (1) format a request (headers + body), (2) send it to a URL, (3) parse the JSON response. That's it.</div></div>
+
+      <h2>The requests Library</h2>
+      <pre><code class="language-python">import requests
+
+# GET request -- retrieve data
+response = requests.get("https://api.github.com/users/python")
+print(response.status_code)  # 200 = success
+data = response.json()       # parse JSON response
+print(data["public_repos"])
+
+# POST request -- send data
+payload = {"username": "alice", "action": "login"}
+resp = requests.post("https://httpbin.org/post", json=payload)
+print(resp.json()["json"])  # echo of what we sent
+
+# Always check status
+response.raise_for_status()  # raises exception if 4xx/5xx</code></pre>
+
+      <h2>Headers and Authentication</h2>
+      <pre><code class="language-python"># API keys go in headers -- never in URLs
+headers = {
+    "Authorization": "Bearer YOUR_API_KEY",
+    "Content-Type": "application/json"
+}
+response = requests.get("https://api.example.com/data", headers=headers)
+
+# Query parameters
+params = {"q": "python AI", "limit": 10, "page": 1}
+response = requests.get("https://api.example.com/search", params=params)
+# Results in: /search?q=python+AI&limit=10&page=1</code></pre>
+
+      <h2>Working with JSON</h2>
+      <pre><code class="language-python">import json
+
+# Parse JSON string to Python dict
+data = json.loads('{"name": "Alice", "score": 95}')
+print(data["name"])  # Alice
+
+# Convert Python dict to JSON string
+json_str = json.dumps({"name": "Alice", "score": 95}, indent=2)
+
+# Save to file
+with open("results.json", "w") as f:
+    json.dump(data, f, indent=2)
+
+# Load from file
+with open("results.json") as f:
+    loaded = json.load(f)</code></pre>
+
+      <h2>Error Handling for APIs</h2>
+      <pre><code class="language-python">import requests, time
+
+def call_api(url, headers, retries=3):
+    for attempt in range(retries):
+        try:
+            resp = requests.get(url, headers=headers, timeout=10)
+            resp.raise_for_status()
+            return resp.json()
+        except requests.exceptions.Timeout:
+            print(f"Timeout on attempt {attempt+1}")
+            time.sleep(2 ** attempt)  # exponential backoff
+        except requests.exceptions.HTTPError as e:
+            if resp.status_code == 429:  # rate limited
+                time.sleep(10)
+            else:
+                raise
+    raise RuntimeError("All retries failed")</code></pre>
+      <div class="warning-box"><i class="fas fa-exclamation-triangle"></i><div><strong>Never hardcode API keys</strong> in your code. Use environment variables: <code>import os; key = os.environ["OPENAI_API_KEY"]</code>. Never commit keys to GitHub.</div></div>
+
+    </div>
+
+    <div class="tab-panel" data-panel="lab" style="display:none">
+      <div class="lab-section">
+        <div class="lab-header">
+          <h2><i class="fas fa-flask"></i> Lab: Call Real APIs</h2>
+          <p>Make GET and POST requests to real public APIs and handle responses in Python.</p>
+        </div>
+        <div class="lab-steps">
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">1</span><h3>Call a public GET API</h3></div>
+            <div class="lab-step-body">
+              <pre><code class="language-python">import requests
+
+resp = requests.get("https://api.github.com/repos/python/cpython")
+data = resp.json()
+print("Stars:", data["stargazers_count"])
+print("Forks:", data["forks_count"])
+print("Language:", data["language"])</code></pre>
+            </div>
+          </div>
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">2</span><h3>Use query parameters</h3></div>
+            <div class="lab-step-body">
+              <pre><code class="language-python"># Search GitHub for Python AI repos
+params = {"q": "python AI tutorial", "sort": "stars", "per_page": 5}
+resp = requests.get("https://api.github.com/search/repositories", params=params)
+results = resp.json()["items"]
+for repo in results:
+    print(f"{repo['full_name']:40s} stars={repo['stargazers_count']}")</code></pre>
+            </div>
+          </div>
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">3</span><h3>Test a POST request</h3></div>
+            <div class="lab-step-body">
+              <pre><code class="language-python"># httpbin.org echoes back what you send -- great for testing
+payload = {"model": "gpt-4", "prompt": "Hello!", "temperature": 0.7}
+resp = requests.post("https://httpbin.org/post", json=payload)
+print("Sent:", resp.json()["json"])</code></pre>
+            </div>
+          </div>
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">4</span><h3>Save API results to JSON</h3></div>
+            <div class="lab-step-body">
+              <pre><code class="language-python">import json
+
+resp = requests.get("https://api.github.com/users/python")
+data = resp.json()
+
+# Save selected fields
+summary = {"name": data["name"], "repos": data["public_repos"], "followers": data["followers"]}
+with open("github_python.json", "w") as f:
+    json.dump(summary, f, indent=2)
+print("Saved:", summary)</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="tab-panel" data-panel="quiz" style="display:none">
+      <div id="quiz-container"></div>
+    </div>
+
+    <div class="session-nav-buttons">
+      <a href="/Python-for-AI/sessions/intermediate/11-data-viz.html" class="session-nav-btn prev" id="prev-session">
+        <span class="nav-label">Previous</span>
+        <span class="nav-title">← Data Visualization</span>
+      </a>
+      <a href="/Python-for-AI/sessions/intermediate/13-openai-api.html" class="session-nav-btn next" id="next-session">
+        <span class="nav-label">Next</span>
+        <span class="nav-title">Using the OpenAI & Claude API →</span>
+      </a>
+    </div>
+  </main>
+</div>
+<div id="footer-placeholder"></div>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+<script src="/Python-for-AI/assets/js/progress.js"></script>
+<script src="/Python-for-AI/assets/js/quiz.js"></script>
+<script src="/Python-for-AI/assets/js/lab.js"></script>
+<script src="/Python-for-AI/assets/js/session.js"></script>
+<script src="/Python-for-AI/assets/js/main.js"></script>
+<script>
+window.SESSION_META = {
+  id: 'py-12',
+  title: 'Working with APIs & HTTP',
+  section: 'intermediate',
+  quizData: [
+    { id:'q1', type:'mcq', question:'What HTTP status code means "success" for a GET request?',
+      options:[
+        {text:'200',correct:true},
+        {text:'404',correct:false},
+        {text:'500',correct:false},
+        {text:'201',correct:false},
+      ],
+      explanation:'200 OK is the standard success response for GET requests. 201 is "Created" (for POST), 404 is "Not Found", 500 is "Server Error".' },
+    { id:'q2', type:'mcq', question:'How should you store API keys in Python code?',
+      options:[
+        {text:'In environment variables, loaded with os.environ',correct:true},
+        {text:'Hardcoded as string constants',correct:false},
+        {text:'In a public GitHub repository',correct:false},
+        {text:'In query parameters in the URL',correct:false},
+      ],
+      explanation:'API keys must never be hardcoded or committed to version control. Use environment variables or a .env file (never committed).' },
+    { id:'q3', type:'mcq', question:'What does requests.get(url, params={"q": "AI"}) do?',
+      options:[
+        {text:'Appends ?q=AI to the URL automatically',correct:true},
+        {text:'Sends {"q":"AI"} as the request body',correct:false},
+        {text:'Sets a "q" header',correct:false},
+        {text:'Filters the response by "AI"',correct:false},
+      ],
+      explanation:'The params argument is URL-encoded and appended as a query string: url?q=AI.' },
+    { id:'q4', type:'truefalse', question:'response.raise_for_status() raises an exception for 4xx and 5xx HTTP status codes.',
+      correctAnswer:true,
+      explanation:'raise_for_status() is a convenient way to fail loudly on any error status, rather than silently returning bad data.' },
+    { id:'q5', type:'mcq', question:'What does json.loads() do?',
+      options:[
+        {text:'Parses a JSON string into a Python dict/list',correct:true},
+        {text:'Converts a Python object to a JSON string',correct:false},
+        {text:'Loads a JSON file from disk',correct:false},
+        {text:'Validates JSON syntax',correct:false},
+      ],
+      explanation:'json.loads() = load from string. json.load() = load from file. json.dumps() = dump to string. json.dump() = dump to file.' },
+  ]
+};
+</script>
+</body>
+</html>

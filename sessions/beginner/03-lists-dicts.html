@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lists, Tuples & Dictionaries - Python for AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/main.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/session.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/quiz.css"/>
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="session-page-wrapper">
+  <aside id="session-sidebar"></aside>
+  <main>
+    <header class="session-header">
+      <div class="session-breadcrumb"><a href="/Python-for-AI/">Home</a><span class="sep">&#8250;</span><a href="/Python-for-AI/sections/beginner.html">Beginner</a><span class="sep">&#8250;</span><span>Session 03</span></div>
+      <h1 class="session-title">Lists, Tuples & Dictionaries</h1>
+      <p class="session-tagline">The data structures behind every AI project — from datasets to API responses.</p>
+      <div class="session-meta">
+        <span><i class="fas fa-clock"></i> 30 min</span>
+        <span><span class="badge badge-beginner"><i class="fas fa-seedling"></i> Beginner</span></span>
+        <span><i class="fas fa-flask"></i> Hands-on Lab</span>
+      </div>
+    </header>
+    <div class="tab-nav">
+      <button class="tab-btn active" data-tab="learn"><i class="fas fa-book-open"></i> Learn</button>
+      <button class="tab-btn" data-tab="lab"><i class="fas fa-flask"></i> Lab</button>
+      <button class="tab-btn" data-tab="quiz"><i class="fas fa-check-circle"></i> Quiz</button>
+    </div>
+    <div class="tab-panel learn-content" data-panel="learn"><h2>Lists</h2><pre><code class="language-python">fruits = ["apple", "banana", "cherry"]
+print(fruits[0])    # "apple"
+print(fruits[-1])   # "cherry"
+print(fruits[1:3])  # ["banana","cherry"]
+fruits.append("date"); fruits.remove("banana")
+print(len(fruits)); print(sorted(fruits))</code></pre><h2>List Comprehensions</h2><pre><code class="language-python">nums = list(range(1,11))
+squares    = [x**2 for x in nums]
+evens      = [x for x in nums if x % 2 == 0]
+normalized = [x/max(nums) for x in nums]  # ML pattern!</code></pre><h2>Tuples</h2><pre><code class="language-python">point = (3, 4)
+x, y = point   # unpacking
+# Tuples can be dict keys; lists cannot
+grid = {(0,0): "start", (1,0): "wall"}</code></pre><h2>Dictionaries</h2><pre><code class="language-python">student = {"name":"Alice","grade":95}
+print(student["name"])
+print(student.get("age", 0))  # 0 if missing
+student["grade"] = 98
+for k, v in student.items():
+    print(f"{k}: {v}")</code></pre><h2>List of Dicts — Real Data Pattern</h2><pre><code class="language-python">employees = [
+    {"name":"Alice","role":"engineer","salary":120000},
+    {"name":"Bob",  "role":"designer","salary":95000},
+]
+engineers = [e for e in employees if e["role"]=="engineer"]
+avg = sum(e["salary"] for e in employees)/len(employees)
+print(f"Avg: ${avg:,.0f}")</code></pre></div>
+    <div class="tab-panel" data-panel="lab" style="display:none"><div class="lab-section"><div class="lab-header"><h2><i class="fas fa-flask"></i> Lab: Student Grade Tracker</h2><p>Build a grade system using lists and dicts.</p></div><div class="lab-steps"><div class="lab-step"><div class="lab-step-header"><span class="lab-step-num">1</span><h3>Create data</h3></div><div class="lab-step-body"><pre><code class="language-python">students = [
+    {"name":"Alice","grades":[88,92,95,78,90]},
+    {"name":"Bob",  "grades":[72,68,75,80,71]},
+    {"name":"Carol","grades":[95,98,92,97,99]},
+]</code></pre></div></div><div class="lab-step"><div class="lab-step-header"><span class="lab-step-num">2</span><h3>Calculate averages</h3></div><div class="lab-step-body"><pre><code class="language-python">for s in students:
+    s["avg"] = round(sum(s["grades"])/len(s["grades"]),1)
+    print(f"{s['name']}: {s['avg']}")</code></pre></div></div><div class="lab-step"><div class="lab-step-header"><span class="lab-step-num">3</span><h3>Top student</h3></div><div class="lab-step-body"><pre><code class="language-python">top = max(students, key=lambda s: s["avg"])
+above80 = [s["name"] for s in students if s["avg"] >= 80]
+print(f"Top: {top['name']} ({top['avg']})")
+print(f"Above 80: {above80}")</code></pre></div></div></div></div></div>
+    <div class="tab-panel" data-panel="quiz" style="display:none"><div id="quiz-container"></div></div>
+    <div class="session-nav-buttons"><a href="/Python-for-AI/sessions/beginner/02-variables-types.html" class="session-nav-btn prev" id="prev-session"><span class="nav-label">Previous</span><span class="nav-title">&larr; Variables & Data Types</span></a><a href="/Python-for-AI/sessions/beginner/04-functions-scope.html" class="session-nav-btn next" id="next-session"><span class="nav-label">Next</span><span class="nav-title">Functions & Scope &rarr;</span></a></div>
+  </main>
+</div>
+<div id="footer-placeholder"></div>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+<script src="/Python-for-AI/assets/js/progress.js"></script>
+<script src="/Python-for-AI/assets/js/quiz.js"></script>
+<script src="/Python-for-AI/assets/js/lab.js"></script>
+<script src="/Python-for-AI/assets/js/session.js"></script>
+<script src="/Python-for-AI/assets/js/main.js"></script>
+<script>
+window.SESSION_META = {id:'py-03',title:'Lists, Tuples & Dictionaries',section:'beginner',quizData:[{id:'q1',type:"mcq",question:'What does fruits[-1] return?',options:[{text:'The last item',correct:true},{text:'Error',correct:false},{text:'First item',correct:false},{text:'None',correct:false}],explanation:'Negative indices count from the end. -1 is the last item.'},{id:'q2',type:"mcq",question:'Output of [x*2 for x in range(3)]?',options:[{text:'[0,2,4]',correct:true},{text:'[2,4,6]',correct:false},{text:'[1,2,3]',correct:false},{text:'[0,1,2]',correct:false}],explanation:'range(3) gives 0,1,2. Times 2 gives [0,2,4].'},{id:'q3',type:"mcq",question:'How to safely get a missing dict key?',options:[{text:"d.get('key',default)",correct:true},{text:'d["key"]',correct:false},{text:"d.fetch('key')",correct:false},{text:"d.find('key')",correct:false}],explanation:'dict.get() returns a default instead of raising KeyError.'},{id:'q4',type:"truefalse",question:'Tuples can be dict keys but lists cannot.',correctAnswer:true,explanation:'Tuples are immutable (hashable), lists are not.'},{id:'q5',type:"mcq",question:'How to iterate keys and values?',options:[{text:'for k,v in d.items()',correct:true},{text:'for k,v in d',correct:false},{text:'for k in d, v in d',correct:false},{text:'for k:v in d',correct:false}],explanation:'dict.items() returns (key,value) pairs.'}]};
+</script>
+</body></html>

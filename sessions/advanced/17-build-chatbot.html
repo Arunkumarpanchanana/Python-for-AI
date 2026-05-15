@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Build a CLI Chatbot — Python for AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/main.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/session.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/quiz.css"/>
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="session-page-wrapper">
+  <aside id="session-sidebar"></aside>
+  <main>
+    <header class="session-header">
+      <div class="session-breadcrumb"><a href="/Python-for-AI/">Home</a><span class="sep">›</span><a href="/Python-for-AI/sections/advanced.html">Advanced</a><span class="sep">›</span><span>Session 17</span></div>
+      <h1 class="session-title">Build a CLI Chatbot</h1>
+      <p class="session-tagline">Build a full Python chatbot with streaming, conversation history, custom persona, and save/load — from scratch.</p>
+      <div class="session-meta">
+        <span><i class="fas fa-clock"></i> 40 min</span>
+        <span><span class="badge badge-advanced"><i class="fas fa-rocket"></i> Advanced</span></span>
+        <span><i class="fas fa-flask"></i> Hands-on Lab</span>
+        <span><i class="fas fa-check-circle"></i> 5 Quiz Questions</span>
+      </div>
+    </header>
+    <div class="tab-nav">
+      <button class="tab-btn active" data-tab="learn"><i class="fas fa-book-open"></i> Learn</button>
+      <button class="tab-btn" data-tab="lab"><i class="fas fa-flask"></i> Lab</button>
+      <button class="tab-btn" data-tab="quiz"><i class="fas fa-check-circle"></i> Quiz</button>
+    </div>
+
+    <div class="tab-panel learn-content" data-panel="learn">
+      <h2>What You Are Building</h2>
+      <p>A command-line chatbot that maintains conversation history, has a custom persona, supports special commands, and streams responses in real time. This is the foundation of every AI assistant — the same architecture powers ChatGPT, Claude.ai, and every enterprise AI tool.</p>
+      <div class="callout callout-info"><i class="fas fa-lightbulb"></i><div><strong>The key skill:</strong> Managing conversation history correctly. The messages list is your chatbot's memory. Append every user message and every AI reply — that's it.</div></div>
+
+      <h2>Architecture: The Message Loop</h2>
+      <pre><code class="language-python">from anthropic import Anthropic
+import os
+
+client = Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+
+SYSTEM = """You are PythonBot, an expert Python for AI tutor.
+You give clear, concise answers with code examples.
+If asked non-Python questions, politely redirect to Python topics."""
+
+def chat(messages: list) -> str:
+    response = client.messages.create(
+        model="claude-opus-4-5",
+        max_tokens=1024,
+        system=SYSTEM,
+        messages=messages
+    )
+    return response.content[0].text
+
+def main():
+    history = []
+    print("PythonBot ready! Type 'quit' to exit, 'clear' to reset.")
+    while True:
+        user_input = input("\nYou: ").strip()
+        if not user_input: continue
+        if user_input.lower() == "quit": break
+        if user_input.lower() == "clear":
+            history = []; print("History cleared."); continue
+        history.append({"role": "user", "content": user_input})
+        reply = chat(history)
+        history.append({"role": "assistant", "content": reply})
+        print(f"\nBot: {reply}")
+
+main()</code></pre>
+
+      <h2>Adding Streaming</h2>
+      <pre><code class="language-python">def chat_stream(messages: list) -> str:
+    """Stream tokens to console, return full reply."""
+    print("\nBot: ", end="", flush=True)
+    full_reply = ""
+    with client.messages.stream(
+        model="claude-opus-4-5",
+        max_tokens=1024,
+        system=SYSTEM,
+        messages=messages
+    ) as stream:
+        for text in stream.text_stream:
+            print(text, end="", flush=True)
+            full_reply += text
+    print()  # newline after stream
+    return full_reply</code></pre>
+
+      <h2>Adding Special Commands</h2>
+      <pre><code class="language-python">def handle_command(cmd: str, history: list) -> bool:
+    """Returns True if a command was handled."""
+    cmd = cmd.lower().strip()
+    if cmd == "/help":
+        print("Commands: /help, /clear, /history, /quit")
+        return True
+    if cmd == "/clear":
+        history.clear(); print("Memory cleared."); return True
+    if cmd == "/history":
+        print(f"\n{len(history)} messages in history:")
+        for i, m in enumerate(history):
+            preview = m["content"][:60].replace("\n", " ")
+            print(f"  [{i}] {m['role']:9s}: {preview}...")
+        return True
+    return False</code></pre>
+
+      <h2>Saving Conversations</h2>
+      <pre><code class="language-python">import json
+from datetime import datetime
+
+def save_chat(history: list, filename: str = None):
+    if not filename:
+        filename = f"chat_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    with open(filename, "w") as f:
+        json.dump({"timestamp": str(datetime.now()), "history": history}, f, indent=2)
+    print(f"Saved to {filename}")
+
+def load_chat(filename: str) -> list:
+    with open(filename) as f:
+        return json.load(f)["history"]</code></pre>
+      <div class="tip-box"><i class="fas fa-star"></i><div><strong>Pro pattern:</strong> Add a token counter to warn users before they hit context limits. Keep a running total of <code>response.usage.input_tokens + output_tokens</code> and alert when approaching 80% of the model's limit.</div></div>
+
+    </div>
+
+    <div class="tab-panel" data-panel="lab" style="display:none">
+      <div class="lab-section">
+        <div class="lab-header">
+          <h2><i class="fas fa-flask"></i> Lab: Build Your Python Tutor Bot</h2>
+          <p>Build a full chatbot in Colab with streaming, commands, and conversation saving.</p>
+        </div>
+        <div class="lab-steps">
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">1</span><h3>Set up the client</h3></div>
+            <div class="lab-step-body">
+              <pre><code class="language-python">!pip install anthropic -q
+from google.colab import userdata
+from anthropic import Anthropic
+
+client = Anthropic(api_key=userdata.get("ANTHROPIC_API_KEY"))
+print("Client ready!")</code></pre>
+            </div>
+          </div>
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">2</span><h3>Build the chat function with streaming</h3></div>
+            <div class="lab-step-body">
+              <pre><code class="language-python">SYSTEM = "You are an expert Python for AI tutor. Give concise answers with runnable code examples."
+
+def chat(history):
+    print("Bot: ", end="")
+    reply = ""
+    with client.messages.stream(
+        model="claude-opus-4-5", max_tokens=1024,
+        system=SYSTEM, messages=history
+    ) as stream:
+        for text in stream.text_stream:
+            print(text, end="", flush=True)
+            reply += text
+    print()
+    return reply</code></pre>
+            </div>
+          </div>
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">3</span><h3>Test a 3-turn conversation</h3></div>
+            <div class="lab-step-body">
+              <pre><code class="language-python">history = []
+
+for question in [
+    "What is a Python decorator?",
+    "Show me a simple example.",
+    "How would I use this in AI code?"
+]:
+    print(f"\nYou: {question}")
+    history.append({"role":"user","content":question})
+    reply = chat(history)
+    history.append({"role":"assistant","content":reply})</code></pre>
+            </div>
+          </div>
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">4</span><h3>Save the conversation</h3></div>
+            <div class="lab-step-body">
+              <pre><code class="language-python">import json
+with open("my_chat.json", "w") as f:
+    json.dump(history, f, indent=2)
+print(f"Saved {len(history)} messages")
+
+# Load and continue
+with open("my_chat.json") as f:
+    loaded = json.load(f)
+print(f"Loaded {len(loaded)} messages, continuing...")</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="tab-panel" data-panel="quiz" style="display:none">
+      <div id="quiz-container"></div>
+    </div>
+
+    <div class="session-nav-buttons">
+      <a href="/Python-for-AI/sessions/intermediate/16-regex-text.html" class="session-nav-btn prev" id="prev-session">
+        <span class="nav-label">Previous</span>
+        <span class="nav-title">← Regex & Text Processing for AI</span>
+      </a>
+      <a href="/Python-for-AI/sessions/advanced/18-rag-basics.html" class="session-nav-btn next" id="next-session">
+        <span class="nav-label">Next</span>
+        <span class="nav-title">Build a Simple RAG System →</span>
+      </a>
+    </div>
+  </main>
+</div>
+<div id="footer-placeholder"></div>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+<script src="/Python-for-AI/assets/js/progress.js"></script>
+<script src="/Python-for-AI/assets/js/quiz.js"></script>
+<script src="/Python-for-AI/assets/js/lab.js"></script>
+<script src="/Python-for-AI/assets/js/session.js"></script>
+<script src="/Python-for-AI/assets/js/main.js"></script>
+<script>
+window.SESSION_META = {
+  id: 'py-17',
+  title: 'Build a CLI Chatbot',
+  section: 'advanced',
+  quizData: [
+    { id:'q1', type:'mcq', question:'How does a chatbot maintain memory across turns?',
+      options:[
+        {text:'By appending each user message and AI reply to a history list passed to every API call',correct:true},
+        {text:'The API automatically remembers previous calls',correct:false},
+        {text:'By storing messages in a database between each call',correct:false},
+        {text:'By using a special "memory" parameter in the API',correct:false},
+      ],
+      explanation:'LLM APIs are stateless. You must manually maintain the conversation history and pass the full messages list on every call.' },
+    { id:'q2', type:'mcq', question:'What does streaming (stream=True) improve?',
+      options:[
+        {text:'Perceived response time — users see text appear as it is generated',correct:true},
+        {text:'Token efficiency — fewer tokens are used',correct:false},
+        {text:'Accuracy — the model thinks more carefully',correct:false},
+        {text:'Cost — streaming calls are cheaper',correct:false},
+      ],
+      explanation:'Streaming does not change cost or quality. It improves UX by showing text incrementally rather than waiting for the full response.' },
+    { id:'q3', type:'mcq', question:'In a multi-turn conversation, what role should the AI replies be stored as in the history list?',
+      options:[
+        {text:'assistant',correct:true},
+        {text:'ai',correct:false},
+        {text:'bot',correct:false},
+        {text:'system',correct:false},
+      ],
+      explanation:'The three valid roles are "system" (instructions), "user" (human input), and "assistant" (AI reply). Using wrong role names causes API errors.' },
+    { id:'q4', type:'truefalse', question:"Clearing the conversation history resets the chatbot's memory completely.",
+      correctAnswer:true,
+      explanation:'Since the LLM has no server-side memory, clearing the history list means the next call starts fresh with no context of previous turns.' },
+    { id:'q5', type:'mcq', question:'What is the purpose of the system message in a chatbot?',
+      options:[
+        {text:"Set the AI's persona, rules, and task — it persists across the entire conversation",correct:true},
+        {text:'It is the first user message sent to the AI',correct:false},
+        {text:'It stores the conversation history',correct:false},
+        {text:'It controls the temperature setting',correct:false},
+      ],
+      explanation:'The system message defines who the AI is and how it should behave. It is not shown to users but frames all responses.' },
+  ]
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Certificate — Python for AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/main.css"/>
+  <style>
+    :root{--brand:#e8622a;}
+    .cert-page{max-width:900px;margin:3rem auto;padding:0 1.5rem 4rem;}
+    .cert-header{text-align:center;margin-bottom:2.5rem;}
+    .cert-header h1{font-size:2rem;font-weight:800;margin-bottom:.5rem;}
+    .cert-header p{color:#78716c;}
+
+    /* Progress gate */
+    .gate-msg{background:#fff7f3;border:1px solid #fcd5b5;border-radius:12px;padding:1.5rem;text-align:center;display:none;}
+    .gate-msg.visible{display:block;}
+    .gate-progress{background:#e7e5e4;border-radius:999px;height:8px;margin:1rem 0;overflow:hidden;}
+    .gate-fill{height:100%;background:#e8622a;border-radius:999px;}
+
+    /* Skills grid */
+    .skills-title{font-size:1.1rem;font-weight:700;margin-bottom:1rem;}
+    .skills-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.75rem;margin-bottom:2rem;}
+    .skill-badge{display:flex;align-items:center;gap:.6rem;background:#fff;border:1px solid #e7e5e4;border-radius:10px;padding:.7rem 1rem;font-size:.83rem;font-weight:600;}
+    .skill-badge.earned{background:#f0fdf4;border-color:#86efac;color:#15803d;}
+    .skill-badge.earned .sb-icon{background:#16a34a;color:#fff;}
+    .skill-badge.locked{color:#a8a29e;}
+    .skill-badge.locked .sb-icon{background:#e7e5e4;color:#a8a29e;}
+    .sb-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0;}
+
+    /* Certificate card */
+    .cert-card{background:linear-gradient(135deg,#fff7f3,#ffede6);border:2px solid #fcd5b5;border-radius:20px;padding:3rem;text-align:center;margin-bottom:2rem;display:none;}
+    .cert-card.visible{display:block;}
+    .cert-logo{font-size:3rem;margin-bottom:1rem;}
+    .cert-card h2{font-size:1.6rem;font-weight:800;color:#1c1917;margin-bottom:.5rem;}
+    .cert-name{font-size:2.2rem;font-weight:800;color:#e8622a;margin:1rem 0;}
+    .cert-card p{color:#57534e;margin-bottom:.5rem;}
+    .cert-date{font-size:.85rem;color:#78716c;margin-top:1rem;}
+    .cert-actions{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:1.5rem;}
+    .cert-btn{display:inline-flex;align-items:center;gap:.4rem;padding:.7rem 1.4rem;border-radius:9px;font-weight:700;font-size:.88rem;cursor:pointer;border:none;transition:background .15s;}
+    .cert-btn-primary{background:#e8622a;color:#fff;}
+    .cert-btn-primary:hover{background:#c0491a;}
+    .cert-btn-secondary{background:#fff;color:#e8622a;border:1.5px solid #e8622a;}
+    .cert-btn-secondary:hover{background:#e8622a;color:#fff;}
+
+    /* Name form */
+    .name-section{background:#fff;border:1px solid #e7e5e4;border-radius:12px;padding:1.5rem;margin-bottom:2rem;}
+    .name-section label{display:block;font-weight:600;margin-bottom:.5rem;}
+    .name-section input{width:100%;padding:.65rem 1rem;border:1.5px solid #e7e5e4;border-radius:8px;font-size:1rem;font-family:'Inter',sans-serif;outline:none;transition:border-color .15s;}
+    .name-section input:focus{border-color:#e8622a;}
+    .name-section button{margin-top:.75rem;background:#e8622a;color:#fff;border:none;padding:.65rem 1.5rem;border-radius:8px;font-weight:700;cursor:pointer;}
+    .name-section button:hover{background:#c0491a;}
+
+    .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-bottom:2rem;}
+    .stat-box{background:#fff;border:1px solid #e7e5e4;border-radius:12px;padding:1.1rem;text-align:center;}
+    .stat-num{font-size:1.8rem;font-weight:800;color:#e8622a;}
+    .stat-label{font-size:.78rem;color:#78716c;font-weight:500;}
+
+    @media(max-width:600px){.cert-card{padding:2rem 1.25rem;}.cert-name{font-size:1.6rem;}}
+  </style>
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="cert-page">
+  <div class="cert-header">
+    <h1><i class="fas fa-graduation-cap" style="color:#e8622a;"></i> Your Certificate</h1>
+    <p>Complete all 22 sessions and pass all quizzes to unlock your Python for AI certificate.</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-box"><div class="stat-num" id="stat-completed">0</div><div class="stat-label">Sessions Completed</div></div>
+    <div class="stat-box"><div class="stat-num" id="stat-quizzes">0</div><div class="stat-label">Quizzes Passed</div></div>
+    <div class="stat-box"><div class="stat-num" id="stat-pct">0%</div><div class="stat-label">Overall Progress</div></div>
+    <div class="stat-box"><div class="stat-num">22</div><div class="stat-label">Total Sessions</div></div>
+  </div>
+
+  <!-- Progress gate -->
+  <div class="gate-msg" id="gate-msg">
+    <i class="fas fa-lock" style="font-size:2rem;color:#e8622a;margin-bottom:.75rem;display:block;"></i>
+    <strong>Keep going! You're almost there.</strong>
+    <p style="color:#78716c;margin:.5rem 0;">Complete all 22 sessions and pass all quizzes to unlock your certificate.</p>
+    <div class="gate-progress"><div class="gate-fill" id="gate-fill" style="width:0%"></div></div>
+    <p id="gate-label" style="font-size:.83rem;color:#78716c;">0 / 22 completed</p>
+    <a href="/Python-for-AI/sessions/beginner/01-why-python.html" style="display:inline-flex;align-items:center;gap:.4rem;margin-top:1rem;background:#e8622a;color:#fff;padding:.6rem 1.2rem;border-radius:8px;font-weight:700;font-size:.88rem;"><i class="fas fa-play"></i> Continue Learning</a>
+  </div>
+
+  <!-- Name form (shown always so users can prepare) -->
+  <div class="name-section" id="name-section">
+    <label for="cert-name-input">Your name for the certificate:</label>
+    <input type="text" id="cert-name-input" placeholder="Enter your full name" maxlength="60"/>
+    <button onclick="saveName()"><i class="fas fa-save"></i> Save Name</button>
+  </div>
+
+  <!-- Certificate (shown when complete) -->
+  <div class="cert-card" id="cert-card">
+    <div class="cert-logo">🐍</div>
+    <h2>Certificate of Completion</h2>
+    <p style="font-size:.9rem;color:#78716c;">This certifies that</p>
+    <div class="cert-name" id="display-name">—</div>
+    <p>has successfully completed</p>
+    <p style="font-weight:700;font-size:1.1rem;margin:.4rem 0;">Python for AI</p>
+    <p style="font-size:.88rem;color:#57534e;">22 sessions · 110 quiz questions · Real AI app labs</p>
+    <div class="cert-date" id="cert-date"></div>
+    <div class="cert-actions">
+      <button class="cert-btn cert-btn-primary" onclick="window.print()"><i class="fas fa-print"></i> Print Certificate</button>
+      <button class="cert-btn cert-btn-secondary" onclick="shareLinkedIn()"><i class="fab fa-linkedin"></i> Share on LinkedIn</button>
+      <button class="cert-btn cert-btn-secondary" id="copy-btn" onclick="copyLink(this)"><i class="fas fa-link"></i> Copy Share Link</button>
+    </div>
+  </div>
+
+  <!-- Skills -->
+  <div class="skills-title"><i class="fas fa-award" style="color:#e8622a;"></i> Skills Earned</div>
+  <div class="skills-grid" id="skills-grid"></div>
+</div>
+
+<div id="footer-placeholder"></div>
+<script src="/Python-for-AI/assets/js/progress.js"></script>
+<script src="/Python-for-AI/assets/js/main.js"></script>
+<script>
+const SKILLS = [
+  {id:'py-01', icon:'fab fa-python', label:'Python Foundations'},
+  {id:'py-02', icon:'fas fa-database', label:'Variables & Types'},
+  {id:'py-03', icon:'fas fa-list', label:'Lists & Dicts'},
+  {id:'py-04', icon:'fas fa-function', label:'Functions & Scope'},
+  {id:'py-05', icon:'fas fa-code-branch', label:'Control Flow'},
+  {id:'py-06', icon:'fas fa-file-code', label:'Files & Errors'},
+  {id:'py-07', icon:'fas fa-cube', label:'OOP'},
+  {id:'py-08', icon:'fas fa-boxes', label:'Modules & Packages'},
+  {id:'py-09', icon:'fas fa-calculator', label:'NumPy'},
+  {id:'py-10', icon:'fas fa-table', label:'Pandas'},
+  {id:'py-11', icon:'fas fa-chart-bar', label:'Data Visualization'},
+  {id:'py-12', icon:'fas fa-network-wired', label:'HTTP & APIs'},
+  {id:'py-13', icon:'fas fa-robot', label:'OpenAI & Claude API'},
+  {id:'py-14', icon:'fas fa-bolt', label:'Async Python'},
+  {id:'py-15', icon:'fas fa-spider', label:'Web Scraping'},
+  {id:'py-16', icon:'fas fa-search', label:'Regex & Text'},
+  {id:'py-17', icon:'fas fa-comments', label:'CLI Chatbot'},
+  {id:'py-18', icon:'fas fa-book', label:'RAG Systems'},
+  {id:'py-19', icon:'fas fa-server', label:'Flask APIs'},
+  {id:'py-20', icon:'fas fa-window-restore', label:'Streamlit Apps'},
+  {id:'py-21', icon:'fas fa-stream', label:'AI Data Pipeline'},
+  {id:'py-22', icon:'fas fa-graduation-cap', label:'Capstone Project'},
+];
+
+function saveName() {
+  const val = document.getElementById('cert-name-input').value.trim();
+  if (!val) { alert('Please enter your name.'); return; }
+  localStorage.setItem('python_ai_cert_name', val);
+  document.getElementById('display-name').textContent = val;
+  alert('Name saved!');
+}
+
+function shareLinkedIn() {
+  const url = 'https://arunkumarpanchanana.github.io/Python-for-AI/certificate.html';
+  window.open('https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(url), '_blank');
+}
+
+function copyLink(btn) {
+  const url = 'https://arunkumarpanchanana.github.io/Python-for-AI/certificate.html';
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(() => {
+      btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+      setTimeout(() => { btn.innerHTML = '<i class="fas fa-link"></i> Copy Share Link'; }, 2000);
+    });
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta);
+    btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+    setTimeout(() => { btn.innerHTML = '<i class="fas fa-link"></i> Copy Share Link'; }, 2000);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const p = Progress.get();
+  const sessions = p.sessions || {};
+  const passed = SKILLS.filter(s => sessions[s.id]?.quizPassed).length;
+  const pct = Math.round((passed / 22) * 100);
+
+  document.getElementById('stat-completed').textContent = passed;
+  document.getElementById('stat-quizzes').textContent = passed;
+  document.getElementById('stat-pct').textContent = pct + '%';
+
+  // Skills grid
+  const grid = document.getElementById('skills-grid');
+  SKILLS.forEach(s => {
+    const earned = !!sessions[s.id]?.quizPassed;
+    grid.innerHTML += `<div class="skill-badge ${earned?'earned':'locked'}">
+      <div class="sb-icon"><i class="${s.icon}"></i></div>
+      <span>${s.label}</span>
+    </div>`;
+  });
+
+  // Saved name
+  const savedName = localStorage.getItem('python_ai_cert_name') || '';
+  if (savedName) {
+    document.getElementById('cert-name-input').value = savedName;
+    document.getElementById('display-name').textContent = savedName;
+  }
+
+  if (passed === 22) {
+    document.getElementById('cert-card').classList.add('visible');
+    document.getElementById('cert-date').textContent = 'Completed ' + new Date().toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'});
+  } else {
+    document.getElementById('gate-msg').classList.add('visible');
+    document.getElementById('gate-fill').style.width = pct + '%';
+    document.getElementById('gate-label').textContent = `${passed} / 22 completed`;
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Wrap AI in a Flask API — Python for AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/main.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/session.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/quiz.css"/>
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="session-page-wrapper">
+  <aside id="session-sidebar"></aside>
+  <main>
+    <header class="session-header">
+      <div class="session-breadcrumb"><a href="/Python-for-AI/">Home</a><span class="sep">›</span><a href="/Python-for-AI/sections/advanced.html">Advanced</a><span class="sep">›</span><span>Session 19</span></div>
+      <h1 class="session-title">Wrap AI in a Flask API</h1>
+      <p class="session-tagline">Turn your Python AI scripts into production REST APIs — endpoints, validation, error handling, and deployment.</p>
+      <div class="session-meta">
+        <span><i class="fas fa-clock"></i> 40 min</span>
+        <span><span class="badge badge-advanced"><i class="fas fa-rocket"></i> Advanced</span></span>
+        <span><i class="fas fa-flask"></i> Hands-on Lab</span>
+        <span><i class="fas fa-check-circle"></i> 5 Quiz Questions</span>
+      </div>
+    </header>
+    <div class="tab-nav">
+      <button class="tab-btn active" data-tab="learn"><i class="fas fa-book-open"></i> Learn</button>
+      <button class="tab-btn" data-tab="lab"><i class="fas fa-flask"></i> Lab</button>
+      <button class="tab-btn" data-tab="quiz"><i class="fas fa-check-circle"></i> Quiz</button>
+    </div>
+
+    <div class="tab-panel learn-content" data-panel="learn">
+      <h2>Why Wrap AI in an API?</h2>
+      <p>A Python script is a local tool. A Flask API is a service — it can be called by web apps, mobile apps, Slack bots, or any other client. Wrapping your AI in a REST API is the standard way to productionize it.</p>
+      <pre><code class="language-python">pip install flask anthropic</code></pre>
+
+      <h2>Your First Flask AI Endpoint</h2>
+      <pre><code class="language-python">from flask import Flask, request, jsonify
+from anthropic import Anthropic
+import os
+
+app = Flask(__name__)
+client = Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+
+@app.route("/chat", methods=["POST"])
+def chat():
+    data = request.get_json()
+    if not data or "message" not in data:
+        return jsonify({"error": "message required"}), 400
+    
+    response = client.messages.create(
+        model="claude-opus-4-5",
+        max_tokens=512,
+        messages=[{"role":"user","content":data["message"]}]
+    )
+    return jsonify({"reply": response.content[0].text})
+
+if __name__ == "__main__":
+    app.run(debug=True, port=5000)</code></pre>
+      <p>Test it: <code>curl -X POST http://localhost:5000/chat -H "Content-Type: application/json" -d '{"message":"What is Python?"}'</code></p>
+
+      <h2>Adding Input Validation and Error Handling</h2>
+      <pre><code class="language-python">from functools import wraps
+import anthropic
+
+def require_json(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if not request.is_json:
+            return jsonify({"error": "Content-Type must be application/json"}), 415
+        return f(*args, **kwargs)
+    return decorated
+
+@app.route("/summarise", methods=["POST"])
+@require_json
+def summarise():
+    data = request.get_json()
+    text = data.get("text", "").strip()
+    if not text:
+        return jsonify({"error": "text is required"}), 400
+    if len(text) > 50_000:
+        return jsonify({"error": "text too long (max 50,000 chars)"}), 400
+    try:
+        response = client.messages.create(
+            model="claude-opus-4-5", max_tokens=300,
+            messages=[{"role":"user","content":f"Summarise in 3 bullet points:\n\n{text}"}]
+        )
+        return jsonify({"summary": response.content[0].text})
+    except anthropic.APIError as e:
+        return jsonify({"error": str(e)}), 502</code></pre>
+
+      <h2>Multiple Endpoints and a Health Check</h2>
+      <pre><code class="language-python">@app.route("/health")
+def health():
+    return jsonify({"status": "ok", "model": "claude-opus-4-5"})
+
+@app.route("/classify", methods=["POST"])
+def classify():
+    data = request.get_json()
+    text  = data.get("text", "")
+    cats  = data.get("categories", ["positive", "negative", "neutral"])
+    prompt = f"Classify the following text into exactly one of: {cats}.\nRespond with only the category name.\n\nText: {text}"
+    response = client.messages.create(
+        model="claude-opus-4-5", max_tokens=20,
+        messages=[{"role":"user","content":prompt}]
+    )
+    label = response.content[0].text.strip().lower()
+    return jsonify({"label": label, "text": text})</code></pre>
+
+      <h2>Deploying to Production (Brief)</h2>
+      <div class="table-wrap"><table class="data-table"><thead><tr><th>Platform</th><th>Command</th><th>Free tier?</th></tr></thead><tbody>
+        <tr><td>Railway</td><td>railway up</td><td>Yes</td></tr>
+        <tr><td>Render</td><td>Push to GitHub, auto-deploy</td><td>Yes</td></tr>
+        <tr><td>Fly.io</td><td>fly launch && fly deploy</td><td>Yes</td></tr>
+        <tr><td>AWS Lambda</td><td>zappa deploy</td><td>1M requests/month free</td></tr>
+      </tbody></table></div>
+      <div class="warning-box"><i class="fas fa-exclamation-triangle"></i><div><strong>Never run Flask with debug=True in production.</strong> Use a proper WSGI server: <code>pip install gunicorn && gunicorn app:app -w 4</code>.</div></div>
+
+    </div>
+
+    <div class="tab-panel" data-panel="lab" style="display:none">
+      <div class="lab-section">
+        <div class="lab-header">
+          <h2><i class="fas fa-flask"></i> Lab: Build a 3-Endpoint AI API</h2>
+          <p>Build a Flask API with chat, summarise, and classify endpoints — then test it with curl.</p>
+        </div>
+        <div class="lab-steps">
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">1</span><h3>Create the Flask app file</h3></div>
+            <div class="lab-step-body">
+              <p>In Colab, create a file called <code>app.py</code>:</p>
+              <pre><code class="language-python">%%writefile app.py
+from flask import Flask, request, jsonify
+from anthropic import Anthropic
+import os
+
+app = Flask(__name__)
+client = Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY",""))
+
+@app.route("/health")
+def health():
+    return jsonify({"status":"ok"})
+
+@app.route("/chat", methods=["POST"])
+def chat():
+    msg = request.json.get("message","")
+    r = client.messages.create(model="claude-opus-4-5",max_tokens=200,
+        messages=[{"role":"user","content":msg}])
+    return jsonify({"reply": r.content[0].text})
+
+@app.route("/summarise", methods=["POST"])
+def summarise():
+    text = request.json.get("text","")
+    r = client.messages.create(model="claude-opus-4-5",max_tokens=200,
+        messages=[{"role":"user","content":f"Summarise in 2 sentences: {text}"}])
+    return jsonify({"summary": r.content[0].text})
+
+if __name__ == "__main__":
+    app.run(port=5000)</code></pre>
+            </div>
+          </div>
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">2</span><h3>Run the server in the background</h3></div>
+            <div class="lab-step-body">
+              <pre><code class="language-python">!pip install flask anthropic -q
+import subprocess, time, os
+os.environ["ANTHROPIC_API_KEY"] = "YOUR_KEY_HERE"  # or use userdata
+server = subprocess.Popen(["python", "app.py"])
+time.sleep(2)
+print("Server started!")</code></pre>
+            </div>
+          </div>
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">3</span><h3>Test with requests</h3></div>
+            <div class="lab-step-body">
+              <pre><code class="language-python">import requests
+
+# Health check
+print(requests.get("http://localhost:5000/health").json())
+
+# Chat
+r = requests.post("http://localhost:5000/chat", json={"message":"What is Flask?"})
+print(r.json())
+
+# Summarise
+r = requests.post("http://localhost:5000/summarise", json={"text":"Python is a versatile language used for web dev, data science, AI, automation and more. It has a clean readable syntax and a huge ecosystem of libraries."})
+print(r.json())</code></pre>
+            </div>
+          </div>
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">4</span><h3>Stop the server</h3></div>
+            <div class="lab-step-body">
+              <pre><code class="language-python">server.terminate()
+print("Server stopped.")</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="tab-panel" data-panel="quiz" style="display:none">
+      <div id="quiz-container"></div>
+    </div>
+
+    <div class="session-nav-buttons">
+      <a href="/Python-for-AI/sessions/advanced/18-rag-basics.html" class="session-nav-btn prev" id="prev-session">
+        <span class="nav-label">Previous</span>
+        <span class="nav-title">← Build a Simple RAG System</span>
+      </a>
+      <a href="/Python-for-AI/sessions/advanced/20-streamlit.html" class="session-nav-btn next" id="next-session">
+        <span class="nav-label">Next</span>
+        <span class="nav-title">Build AI Web Apps with Streamlit →</span>
+      </a>
+    </div>
+  </main>
+</div>
+<div id="footer-placeholder"></div>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+<script src="/Python-for-AI/assets/js/progress.js"></script>
+<script src="/Python-for-AI/assets/js/quiz.js"></script>
+<script src="/Python-for-AI/assets/js/lab.js"></script>
+<script src="/Python-for-AI/assets/js/session.js"></script>
+<script src="/Python-for-AI/assets/js/main.js"></script>
+<script>
+window.SESSION_META = {
+  id: 'py-19',
+  title: 'Wrap AI in a Flask API',
+  section: 'advanced',
+  quizData: [
+    { id:'q1', type:'mcq', question:'What Flask decorator registers a function as an API endpoint?',
+      options:[
+        {text:'@app.route("/path", methods=["POST"])',correct:true},
+        {text:'@app.endpoint("/path")',correct:false},
+        {text:'@flask.api("/path")',correct:false},
+        {text:'@route("/path")',correct:false},
+      ],
+      explanation:'@app.route() maps a URL path and allowed HTTP methods to a Python function that handles those requests.' },
+    { id:'q2', type:'mcq', question:'How do you read JSON from a POST request body in Flask?',
+      options:[
+        {text:'request.get_json()',correct:true},
+        {text:'request.body.json()',correct:false},
+        {text:'request.data',correct:false},
+        {text:'request.form["data"]',correct:false},
+      ],
+      explanation:'request.get_json() parses the request body as JSON and returns a Python dict. request.data returns raw bytes.' },
+    { id:'q3', type:'mcq', question:'What HTTP status code should you return for a missing required field?',
+      options:[
+        {text:'400 Bad Request',correct:true},
+        {text:'404 Not Found',correct:false},
+        {text:'500 Internal Server Error',correct:false},
+        {text:'401 Unauthorized',correct:false},
+      ],
+      explanation:'400 Bad Request means the client sent invalid or incomplete data. Use jsonify({"error":"..."}), 400 in Flask.' },
+    { id:'q4', type:'truefalse', question:"Flask's built-in server (debug=True) is suitable for production deployments.",
+      correctAnswer:false,
+      explanation:"Flask's development server is single-threaded, not secure, and not designed for concurrent load. Use gunicorn or uvicorn in production." },
+    { id:'q5', type:'mcq', question:'Which command runs a Flask app with 4 worker processes in production?',
+      options:[
+        {text:'gunicorn app:app -w 4',correct:true},
+        {text:'flask run --workers=4',correct:false},
+        {text:'python app.py --production',correct:false},
+        {text:'uwsgi --flask app:app',correct:false},
+      ],
+      explanation:'Gunicorn is the standard WSGI server for Flask in production. app:app means "the Flask object called app in the file app.py".' },
+  ]
+};
+</script>
+</body>
+</html>

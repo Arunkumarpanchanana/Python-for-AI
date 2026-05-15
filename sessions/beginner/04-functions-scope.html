@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Functions & Scope - Python for AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/main.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/session.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/quiz.css"/>
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="session-page-wrapper">
+  <aside id="session-sidebar"></aside>
+  <main>
+    <header class="session-header">
+      <div class="session-breadcrumb"><a href="/Python-for-AI/">Home</a><span class="sep">&#8250;</span><a href="/Python-for-AI/sections/beginner.html">Beginner</a><span class="sep">&#8250;</span><span>Session 04</span></div>
+      <h1 class="session-title">Functions & Scope</h1>
+      <p class="session-tagline">Write reusable, clean functions — the core skill for AI application development.</p>
+      <div class="session-meta">
+        <span><i class="fas fa-clock"></i> 30 min</span>
+        <span><span class="badge badge-beginner"><i class="fas fa-seedling"></i> Beginner</span></span>
+        <span><i class="fas fa-flask"></i> Hands-on Lab</span>
+      </div>
+    </header>
+    <div class="tab-nav">
+      <button class="tab-btn active" data-tab="learn"><i class="fas fa-book-open"></i> Learn</button>
+      <button class="tab-btn" data-tab="lab"><i class="fas fa-flask"></i> Lab</button>
+      <button class="tab-btn" data-tab="quiz"><i class="fas fa-check-circle"></i> Quiz</button>
+    </div>
+    <div class="tab-panel learn-content" data-panel="learn"><h2>Defining Functions</h2><pre><code class="language-python">def greet(name):
+    return f"Hello, {name}!"
+
+def score(correct, total, bonus=0):
+    return min((correct/total)*100 + bonus, 100)
+
+print(score(8, 10, 5))   # 85.0</code></pre><h2>*args and **kwargs</h2><pre><code class="language-python">def add_all(*args):
+    return sum(args)
+print(add_all(1,2,3,4))   # 10
+
+def build_prompt(**kwargs):
+    return "\n".join(f"{k}: {v}" for k,v in kwargs.items())
+print(build_prompt(role="assistant", tone="friendly"))</code></pre><h2>Scope — LEGB Rule</h2><pre><code class="language-python">x = "global"
+def outer():
+    x = "outer"
+    def inner():
+        x = "inner"; print(x)  # "inner"
+    inner()
+    print(x)   # "outer"
+outer()
+print(x)   # "global"</code></pre><h2>Lambda Functions</h2><pre><code class="language-python">square = lambda x: x**2
+
+students = [{"name":"Bob","grade":85},{"name":"Alice","grade":92}]
+students.sort(key=lambda s: s["grade"], reverse=True)
+print(students[0]["name"])   # Alice</code></pre><h2>Type Hints and Docstrings</h2><pre><code class="language-python">def count_tokens(text: str, chars_per_token: float = 4.0) -> int:
+    """Estimate token count for an LLM prompt."""
+    return int(len(text) / chars_per_token)
+
+print(count_tokens("Hello world"))  # 2</code></pre></div>
+    <div class="tab-panel" data-panel="lab" style="display:none"><div class="lab-section"><div class="lab-header"><h2><i class="fas fa-flask"></i> Lab: Text Analyzer</h2><p>Build reusable text analysis functions.</p></div><div class="lab-steps"><div class="lab-step"><div class="lab-step-header"><span class="lab-step-num">1</span><h3>Word count and avg length</h3></div><div class="lab-step-body"><pre><code class="language-python">def word_count(text): return len(text.split())
+def avg_word_length(text):
+    words = text.split()
+    return sum(len(w) for w in words)/len(words) if words else 0
+
+text = "Python is the best language for AI"
+print(word_count(text), avg_word_length(text))</code></pre></div></div><div class="lab-step"><div class="lab-step-header"><span class="lab-step-num">2</span><h3>Most common word</h3></div><div class="lab-step-body"><pre><code class="language-python">from collections import Counter
+def top_word(text):
+    return Counter(text.lower().split()).most_common(1)[0][0]
+print(top_word("the cat sat on the mat and the cat"))</code></pre></div></div><div class="lab-step"><div class="lab-step-header"><span class="lab-step-num">3</span><h3>Combined analyzer</h3></div><div class="lab-step-body"><pre><code class="language-python">def analyze(text):
+    return {"words":word_count(text),"top":top_word(text),"chars":len(text)}
+for k,v in analyze(text).items(): print(f"{k}: {v}")</code></pre></div></div></div></div></div>
+    <div class="tab-panel" data-panel="quiz" style="display:none"><div id="quiz-container"></div></div>
+    <div class="session-nav-buttons"><a href="/Python-for-AI/sessions/beginner/03-lists-dicts.html" class="session-nav-btn prev" id="prev-session"><span class="nav-label">Previous</span><span class="nav-title">&larr; Lists, Tuples & Dictionaries</span></a><a href="/Python-for-AI/sessions/beginner/05-control-flow.html" class="session-nav-btn next" id="next-session"><span class="nav-label">Next</span><span class="nav-title">Control Flow & Loops &rarr;</span></a></div>
+  </main>
+</div>
+<div id="footer-placeholder"></div>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+<script src="/Python-for-AI/assets/js/progress.js"></script>
+<script src="/Python-for-AI/assets/js/quiz.js"></script>
+<script src="/Python-for-AI/assets/js/lab.js"></script>
+<script src="/Python-for-AI/assets/js/session.js"></script>
+<script src="/Python-for-AI/assets/js/main.js"></script>
+<script>
+window.SESSION_META = {id:'py-04',title:'Functions & Scope',section:'beginner',quizData:[{id:'q1',type:"mcq",question:'What does return do?',options:[{text:'Exits the function with a value',correct:true},{text:'Prints a value',correct:false},{text:'Stores globally',correct:false},{text:'Loops back',correct:false}],explanation:'return exits the function and passes the value to the caller.'},{id:'q2',type:"mcq",question:'Default for bonus in score(correct,total,bonus=0)?',options:[{text:'0',correct:true},{text:'None',correct:false},{text:'1',correct:false},{text:'Required',correct:false}],explanation:'bonus=0 sets 0 as default if not provided.'},{id:'q3',type:"mcq",question:'Which lambda doubles a number?',options:[{text:'lambda x: x*2',correct:true},{text:'lambda: x*2',correct:false},{text:'def lambda(x):x*2',correct:false},{text:'lambda x=>x*2',correct:false}],explanation:'lambda x: x*2 is a valid one-line function.'},{id:'q4',type:"mcq",question:'Where does Python look first (LEGB)?',options:[{text:'Local scope',correct:true},{text:'Global scope',correct:false},{text:'Built-in scope',correct:false},{text:'Enclosing scope',correct:false}],explanation:'LEGB: Local is always checked first.'},{id:'q5',type:"mcq",question:'What is a docstring for?',options:[{text:'Document what a function does',correct:true},{text:'Speed up the function',correct:false},{text:'Make it private',correct:false},{text:'Test it',correct:false}],explanation:'Docstrings describe purpose, args, and return value.'}]};
+</script>
+</body></html>

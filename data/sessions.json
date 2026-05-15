@@ -1,0 +1,44 @@
+{
+  "sections": [
+    {
+      "id": "beginner",
+      "label": "🌱 Beginner",
+      "sessions": [
+        {"id":"py-01","title":"Why Python for AI?","path":"/Python-for-AI/sessions/beginner/01-why-python.html","duration":"20 min"},
+        {"id":"py-02","title":"Variables & Data Types","path":"/Python-for-AI/sessions/beginner/02-variables-types.html","duration":"25 min"},
+        {"id":"py-03","title":"Lists, Tuples & Dictionaries","path":"/Python-for-AI/sessions/beginner/03-lists-dicts.html","duration":"30 min"},
+        {"id":"py-04","title":"Functions & Scope","path":"/Python-for-AI/sessions/beginner/04-functions-scope.html","duration":"30 min"},
+        {"id":"py-05","title":"Control Flow & Loops","path":"/Python-for-AI/sessions/beginner/05-control-flow.html","duration":"25 min"},
+        {"id":"py-06","title":"File Handling & Error Handling","path":"/Python-for-AI/sessions/beginner/06-files-errors.html","duration":"30 min"},
+        {"id":"py-07","title":"Object-Oriented Programming","path":"/Python-for-AI/sessions/beginner/07-oop-basics.html","duration":"35 min"},
+        {"id":"py-08","title":"Modules, Packages & the Ecosystem","path":"/Python-for-AI/sessions/beginner/08-modules-packages.html","duration":"25 min"}
+      ]
+    },
+    {
+      "id": "intermediate",
+      "label": "💻 Intermediate",
+      "sessions": [
+        {"id":"py-09","title":"NumPy: Arrays & Math","path":"/Python-for-AI/sessions/intermediate/09-numpy.html","duration":"35 min"},
+        {"id":"py-10","title":"Pandas: Data Analysis","path":"/Python-for-AI/sessions/intermediate/10-pandas.html","duration":"40 min"},
+        {"id":"py-11","title":"Data Visualization","path":"/Python-for-AI/sessions/intermediate/11-data-viz.html","duration":"30 min"},
+        {"id":"py-12","title":"Working with APIs & HTTP","path":"/Python-for-AI/sessions/intermediate/12-apis-requests.html","duration":"30 min"},
+        {"id":"py-13","title":"Using the OpenAI & Claude API","path":"/Python-for-AI/sessions/intermediate/13-openai-api.html","duration":"35 min"},
+        {"id":"py-14","title":"Async Python & Concurrency","path":"/Python-for-AI/sessions/intermediate/14-async-python.html","duration":"35 min"},
+        {"id":"py-15","title":"Web Scraping for AI Data","path":"/Python-for-AI/sessions/intermediate/15-web-scraping.html","duration":"30 min"},
+        {"id":"py-16","title":"Regex & Text Processing for AI","path":"/Python-for-AI/sessions/intermediate/16-regex-text.html","duration":"30 min"}
+      ]
+    },
+    {
+      "id": "advanced",
+      "label": "🚀 Advanced",
+      "sessions": [
+        {"id":"py-17","title":"Build a CLI Chatbot","path":"/Python-for-AI/sessions/advanced/17-build-chatbot.html","duration":"40 min"},
+        {"id":"py-18","title":"Build a Simple RAG System","path":"/Python-for-AI/sessions/advanced/18-rag-basics.html","duration":"45 min"},
+        {"id":"py-19","title":"Wrap AI in a Flask API","path":"/Python-for-AI/sessions/advanced/19-flask-api.html","duration":"40 min"},
+        {"id":"py-20","title":"Build AI Web Apps with Streamlit","path":"/Python-for-AI/sessions/advanced/20-streamlit.html","duration":"40 min"},
+        {"id":"py-21","title":"Build an AI Data Pipeline","path":"/Python-for-AI/sessions/advanced/21-ai-data-pipeline.html","duration":"40 min"},
+        {"id":"py-22","title":"Capstone: Your AI App","path":"/Python-for-AI/sessions/advanced/22-capstone.html","duration":"60 min"}
+      ]
+    }
+  ]
+}

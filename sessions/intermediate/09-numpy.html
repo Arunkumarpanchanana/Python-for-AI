@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NumPy: Arrays & Math — Python for AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/main.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/session.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/quiz.css"/>
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="session-page-wrapper">
+  <aside id="session-sidebar"></aside>
+  <main>
+    <header class="session-header">
+      <div class="session-breadcrumb"><a href="/Python-for-AI/">Home</a><span class="sep">›</span><a href="/Python-for-AI/sections/intermediate.html">Intermediate</a><span class="sep">›</span><span>Session 09</span></div>
+      <h1 class="session-title">NumPy: Arrays & Math</h1>
+      <p class="session-tagline">Master the NumPy array operations that underpin every AI framework — vectorisation, broadcasting, linear algebra.</p>
+      <div class="session-meta">
+        <span><i class="fas fa-clock"></i> 35 min</span>
+        <span><span class="badge badge-intermediate"><i class="fas fa-laptop-code"></i> Intermediate</span></span>
+        <span><i class="fas fa-flask"></i> Hands-on Lab</span>
+        <span><i class="fas fa-check-circle"></i> 5 Quiz Questions</span>
+      </div>
+    </header>
+    <div class="tab-nav">
+      <button class="tab-btn active" data-tab="learn"><i class="fas fa-book-open"></i> Learn</button>
+      <button class="tab-btn" data-tab="lab"><i class="fas fa-flask"></i> Lab</button>
+      <button class="tab-btn" data-tab="quiz"><i class="fas fa-check-circle"></i> Quiz</button>
+    </div>
+
+    <div class="tab-panel learn-content" data-panel="learn">
+      <h2>What Is NumPy and Why Does It Matter?</h2>
+      <p>NumPy (Numerical Python) is the foundation of the entire scientific Python stack. Every major AI library — PyTorch, TensorFlow, scikit-learn, pandas — builds on top of NumPy arrays. Understanding NumPy means understanding how data flows through AI systems.</p>
+      <p>The key insight: a NumPy array is not a Python list. It stores all elements in contiguous memory as a single C array, which makes operations 10–100x faster than equivalent Python loops. When you multiply two NumPy arrays, the math runs in compiled C — Python just orchestrates it.</p>
+      <div class="callout callout-info"><i class="fas fa-lightbulb"></i><div><strong>The core rule:</strong> Avoid Python loops over array elements. Instead, use NumPy's built-in vectorized operations — they run in C and are dramatically faster.</div></div>
+
+      <h2>Creating Arrays</h2>
+      <pre><code class="language-python">import numpy as np
+
+# From a list
+a = np.array([1, 2, 3, 4, 5])
+print(a.dtype)   # int64
+print(a.shape)   # (5,)
+
+# 2D array (matrix)
+matrix = np.array([[1, 2, 3], [4, 5, 6]])
+print(matrix.shape)  # (2, 3) -- 2 rows, 3 cols
+
+# Special arrays
+np.zeros((3, 4))        # 3x4 matrix of zeros
+np.ones((2, 5))         # 2x5 matrix of ones
+np.arange(0, 10, 2)     # [0, 2, 4, 6, 8]
+np.linspace(0, 1, 5)    # [0.0, 0.25, 0.5, 0.75, 1.0]
+np.random.rand(3, 3)    # 3x3 uniform random [0,1)
+np.random.randn(100)    # 100 samples from standard normal</code></pre>
+
+      <h2>Vectorized Operations</h2>
+      <pre><code class="language-python">a = np.array([1, 2, 3, 4])
+b = np.array([10, 20, 30, 40])
+
+# Element-wise arithmetic -- no loops needed
+print(a + b)    # [11 22 33 44]
+print(a * b)    # [10 40 90 160]
+print(a ** 2)   # [ 1  4  9 16]
+print(np.sqrt(b))  # [3.16 4.47 5.48 6.32]
+
+# Aggregations
+print(a.sum())    # 10
+print(a.mean())   # 2.5
+print(a.std())    # standard deviation
+print(a.max(), a.min(), a.argmax())  # max, min, index of max
+
+# Boolean indexing -- essential for AI data filtering
+data = np.array([15, 8, 23, 4, 42, 7])
+print(data[data > 10])  # [15 23 42]</code></pre>
+
+      <h2>Shapes, Reshaping, and Broadcasting</h2>
+      <pre><code class="language-python"># Reshape -- change dimensions without changing data
+flat = np.arange(12)         # [0 1 2 ... 11]
+grid = flat.reshape(3, 4)    # 3x4 matrix
+cube = flat.reshape(2, 2, 3) # 3D tensor
+
+# Broadcasting -- NumPy stretches smaller arrays to match larger
+matrix = np.ones((3, 4))
+row    = np.array([1, 2, 3, 4])  # shape (4,)
+result = matrix + row            # row added to each of 3 rows
+print(result.shape)  # (3, 4)
+
+# Axis operations -- critical for ML
+m = np.array([[1,2,3],[4,5,6]])
+print(m.sum(axis=0))  # sum down columns: [5 7 9]
+print(m.sum(axis=1))  # sum across rows:  [6 15]</code></pre>
+
+      <h2>Linear Algebra (the Heart of ML)</h2>
+      <pre><code class="language-python"># Dot product and matrix multiplication
+a = np.array([1, 2, 3])
+b = np.array([4, 5, 6])
+print(np.dot(a, b))  # 32  (1*4 + 2*5 + 3*6)
+
+A = np.array([[1, 2], [3, 4]])
+B = np.array([[5, 6], [7, 8]])
+print(A @ B)   # matrix multiply: [[19 22],[43 50]]
+
+# Transpose
+print(A.T)     # [[1 3],[2 4]]
+
+# Determinant and inverse (from linalg submodule)
+print(np.linalg.det(A))   # -2.0
+print(np.linalg.inv(A))   # inverse matrix</code></pre>
+      <div class="tip-box"><i class="fas fa-star"></i><div><strong>Why this matters:</strong> Neural networks are matrix multiplications. Every forward pass through a layer is <code>output = inputs @ weights + bias</code>. NumPy makes this readable and fast.</div></div>
+
+    </div>
+
+    <div class="tab-panel" data-panel="lab" style="display:none">
+      <div class="lab-section">
+        <div class="lab-header">
+          <h2><i class="fas fa-flask"></i> Lab: NumPy for AI Data</h2>
+          <p>Work with arrays, perform vectorized math, and simulate a neural network layer calculation.</p>
+        </div>
+        <div class="lab-steps">
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">1</span><h3>Install and import NumPy</h3></div>
+            <div class="lab-step-body">
+              <p>In a new Colab notebook:</p>
+              <pre><code class="language-python">import numpy as np
+print("NumPy version:", np.__version__)</code></pre>
+            </div>
+          </div>
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">2</span><h3>Create and inspect arrays</h3></div>
+            <div class="lab-step-body">
+              <pre><code class="language-python"># Simulate a dataset: 100 samples, 5 features each
+data = np.random.randn(100, 5)
+print("Shape:", data.shape)
+print("Mean per feature:", data.mean(axis=0).round(3))
+print("Std per feature:", data.std(axis=0).round(3))
+print("Min:", data.min(), "Max:", data.max())</code></pre>
+            </div>
+          </div>
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">3</span><h3>Normalize the data (z-score)</h3></div>
+            <div class="lab-step-body">
+              <p>Normalisation is essential before feeding data into ML models.</p>
+              <pre><code class="language-python">mean = data.mean(axis=0)
+std  = data.std(axis=0)
+normalized = (data - mean) / std
+print("After normalization:")
+print("Mean:", normalized.mean(axis=0).round(3))  # ~[0,0,0,0,0]
+print("Std: ", normalized.std(axis=0).round(3))   # ~[1,1,1,1,1]</code></pre>
+            </div>
+          </div>
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">4</span><h3>Simulate a single neural network layer</h3></div>
+            <div class="lab-step-body">
+              <p>A dense layer: <code>output = ReLU(inputs @ weights + bias)</code></p>
+              <pre><code class="language-python">inputs  = normalized[:10]          # 10 samples, 5 features
+weights = np.random.randn(5, 3)    # 5 inputs -> 3 neurons
+bias    = np.zeros(3)
+
+raw    = inputs @ weights + bias   # shape (10, 3)
+output = np.maximum(0, raw)        # ReLU activation
+print("Layer output shape:", output.shape)  # (10, 3)
+print("Sample output (first row):", output[0].round(3))</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="tab-panel" data-panel="quiz" style="display:none">
+      <div id="quiz-container"></div>
+    </div>
+
+    <div class="session-nav-buttons">
+      <a href="/Python-for-AI/sessions/beginner/08-modules-packages.html" class="session-nav-btn prev" id="prev-session">
+        <span class="nav-label">Previous</span>
+        <span class="nav-title">← Modules & Packages</span>
+      </a>
+      <a href="/Python-for-AI/sessions/intermediate/10-pandas.html" class="session-nav-btn next" id="next-session">
+        <span class="nav-label">Next</span>
+        <span class="nav-title">Pandas: Data Analysis →</span>
+      </a>
+    </div>
+  </main>
+</div>
+<div id="footer-placeholder"></div>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+<script src="/Python-for-AI/assets/js/progress.js"></script>
+<script src="/Python-for-AI/assets/js/quiz.js"></script>
+<script src="/Python-for-AI/assets/js/lab.js"></script>
+<script src="/Python-for-AI/assets/js/session.js"></script>
+<script src="/Python-for-AI/assets/js/main.js"></script>
+<script>
+window.SESSION_META = {
+  id: 'py-09',
+  title: 'NumPy: Arrays & Math',
+  section: 'intermediate',
+  quizData: [
+    { id:'q1', type:'mcq', question:'What is the shape of np.array([[1,2,3],[4,5,6]])?',
+      options:[
+        {text:'(2, 3)',correct:true},
+        {text:'(3, 2)',correct:false},
+        {text:'(6,)',correct:false},
+        {text:'(2, 2)',correct:false},
+      ],
+      explanation:'The array has 2 rows and 3 columns, so shape is (2, 3).' },
+    { id:'q2', type:'mcq', question:'Which operation gives the mean of each column in a 2D NumPy array?',
+      options:[
+        {text:'arr.mean(axis=0)',correct:true},
+        {text:'arr.mean(axis=1)',correct:false},
+        {text:'arr.mean()',correct:false},
+        {text:'np.colmean(arr)',correct:false},
+      ],
+      explanation:'axis=0 collapses rows (goes down), producing one value per column.' },
+    { id:'q3', type:'mcq', question:'What does np.dot(a, b) compute for 1D arrays?',
+      options:[
+        {text:'Sum of element-wise products (dot product)',correct:true},
+        {text:'Element-wise multiplication',correct:false},
+        {text:'Matrix concatenation',correct:false},
+        {text:'Outer product',correct:false},
+      ],
+      explanation:'For 1D arrays, np.dot computes the dot product: sum of a[i]*b[i] for all i.' },
+    { id:'q4', type:'truefalse', question:'NumPy broadcasting allows arrays of different shapes to work together in operations.',
+      correctAnswer:true,
+      explanation:'Broadcasting automatically expands smaller arrays to match the shape of larger ones, avoiding explicit loops.' },
+    { id:'q5', type:'mcq', question:'What does arr.reshape(2, -1) do when arr has 12 elements?',
+      options:[
+        {text:'Reshapes to (2, 6) — NumPy infers the 6',correct:true},
+        {text:'Raises an error',correct:false},
+        {text:'Reshapes to (2, 12)',correct:false},
+        {text:'Returns arr unchanged',correct:false},
+      ],
+      explanation:'The -1 tells NumPy to infer that dimension. 12 elements / 2 rows = 6 columns, so shape becomes (2, 6).' },
+  ]
+};
+</script>
+</body>
+</html>

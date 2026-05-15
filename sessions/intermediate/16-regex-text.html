@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Regex & Text Processing for AI — Python for AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/main.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/session.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/quiz.css"/>
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="session-page-wrapper">
+  <aside id="session-sidebar"></aside>
+  <main>
+    <header class="session-header">
+      <div class="session-breadcrumb"><a href="/Python-for-AI/">Home</a><span class="sep">›</span><a href="/Python-for-AI/sections/intermediate.html">Intermediate</a><span class="sep">›</span><span>Session 16</span></div>
+      <h1 class="session-title">Regex & Text Processing for AI</h1>
+      <p class="session-tagline">Master string cleaning, regular expressions, and text chunking — essential prep work before any LLM pipeline.</p>
+      <div class="session-meta">
+        <span><i class="fas fa-clock"></i> 30 min</span>
+        <span><span class="badge badge-intermediate"><i class="fas fa-laptop-code"></i> Intermediate</span></span>
+        <span><i class="fas fa-flask"></i> Hands-on Lab</span>
+        <span><i class="fas fa-check-circle"></i> 5 Quiz Questions</span>
+      </div>
+    </header>
+    <div class="tab-nav">
+      <button class="tab-btn active" data-tab="learn"><i class="fas fa-book-open"></i> Learn</button>
+      <button class="tab-btn" data-tab="lab"><i class="fas fa-flask"></i> Lab</button>
+      <button class="tab-btn" data-tab="quiz"><i class="fas fa-check-circle"></i> Quiz</button>
+    </div>
+
+    <div class="tab-panel learn-content" data-panel="learn">
+      <h2>Text Processing Is the Foundation of NLP</h2>
+      <p>Before data reaches an LLM, it must be cleaned. Raw text from the web, PDFs, emails, and databases is messy: inconsistent whitespace, HTML tags, phone numbers, URLs, special characters. Regular expressions (regex) and Python's string tools are your first line of defence.</p>
+
+      <h2>Python String Methods (the Basics)</h2>
+      <pre><code class="language-python">text = "  Hello, World! This is Python 3.  "
+
+# Cleaning
+text.strip()          # remove leading/trailing whitespace
+text.lower()          # "  hello, world! ..."
+text.upper()          # uppercase
+text.replace("!", ".")  # replace characters
+
+# Splitting and joining
+words = text.split()           # split on whitespace
+sentences = text.split(".")    # split on period
+", ".join(["a","b","c"])       # "a, b, c"
+
+# Checking
+text.startswith("Hello")  # False (has leading space)
+text.strip().startswith("Hello")  # True
+"Python" in text  # True
+text.isdigit()  # False
+"42".isdigit()  # True</code></pre>
+
+      <h2>Regular Expressions</h2>
+      <pre><code class="language-python">import re
+
+text = "Contact us at support@example.com or sales@company.org. Call 555-123-4567."
+
+# Find all email addresses
+emails = re.findall(r'[\w.-]+@[\w.-]+\.[a-z]{2,}', text)
+print(emails)  # ['support@example.com', 'sales@company.org']
+
+# Find phone numbers
+phones = re.findall(r'\d{3}-\d{3}-\d{4}', text)
+print(phones)  # ['555-123-4567']
+
+# Replace (clean HTML tags)
+html = "<p>Hello <b>World</b></p>"
+clean = re.sub(r'<[^>]+>', '', html)
+print(clean)  # "Hello World"
+
+# Check if string matches a pattern
+if re.match(r'^\d{4}-\d{2}-\d{2}$', "2026-05-15"):
+    print("Valid date format")</code></pre>
+
+      <h2>Common Regex Patterns for AI Data Cleaning</h2>
+      <div class="table-wrap"><table class="data-table"><thead><tr><th>Pattern</th><th>Matches</th></tr></thead><tbody>
+        <tr><td><code>\d+</code></td><td>One or more digits</td></tr>
+        <tr><td><code>\w+</code></td><td>One or more word chars (letters, digits, _)</td></tr>
+        <tr><td><code>\s+</code></td><td>One or more whitespace characters</td></tr>
+        <tr><td><code>[^\w\s]</code></td><td>Punctuation (not word or whitespace)</td></tr>
+        <tr><td><code>https?://\S+</code></td><td>URLs</td></tr>
+        <tr><td><code>^</code> and <code>$</code></td><td>Start and end of string</td></tr>
+      </tbody></table></div>
+
+      <h2>Text Cleaning Pipeline for LLMs</h2>
+      <pre><code class="language-python">import re
+
+def clean_for_llm(text: str) -> str:
+    """Clean raw text before sending to an LLM."""
+    # Remove HTML tags
+    text = re.sub(r'<[^>]+>', ' ', text)
+    # Remove URLs
+    text = re.sub(r'https?://\S+', ' ', text)
+    # Remove excessive whitespace
+    text = re.sub(r'\s+', ' ', text)
+    # Remove special characters (keep punctuation)
+    text = re.sub(r'[^\w\s.,!?;:\'"-]', ' ', text)
+    return text.strip()
+
+raw = "Visit https://example.com! <b>Get</b> \t  started   today!!!"
+print(clean_for_llm(raw))
+# "Visit  Get  started   today!!!"</code></pre>
+
+      <h2>Tokenisation and Chunking</h2>
+      <pre><code class="language-python"># Rough token counting (OpenAI: ~4 chars per token)
+def estimate_tokens(text): return len(text) // 4
+
+# Chunk long text for LLM context windows
+def chunk_text(text, chunk_size=2000, overlap=200):
+    chunks = []
+    start = 0
+    while start < len(text):
+        end = start + chunk_size
+        chunks.append(text[start:end])
+        start += chunk_size - overlap  # overlap for context
+    return chunks
+
+long_text = "word " * 5000  # ~5000 words
+chunks = chunk_text(long_text)
+print(f"{len(chunks)} chunks, first chunk: {len(chunks[0])} chars")</code></pre>
+
+    </div>
+
+    <div class="tab-panel" data-panel="lab" style="display:none">
+      <div class="lab-section">
+        <div class="lab-header">
+          <h2><i class="fas fa-flask"></i> Lab: Build a Text Cleaning Pipeline</h2>
+          <p>Clean raw messy text, extract structured data with regex, and prepare it for an LLM.</p>
+        </div>
+        <div class="lab-steps">
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">1</span><h3>Extract emails and phones from text</h3></div>
+            <div class="lab-step-body">
+              <pre><code class="language-python">import re
+
+raw = """
+Dear team,
+Please contact Alice at alice@company.com or Bob at b.jones@startup.io.
+For urgent matters: call 415-555-0101 or 800-123-9876.
+Details at https://internal.company.com/policy.html
+"""
+
+emails = re.findall(r'[\w.+-]+@[\w-]+\.[a-z]{2,}', raw)
+phones = re.findall(r'\d{3}-\d{3}-\d{4}', raw)
+urls   = re.findall(r'https?://\S+', raw)
+
+print("Emails:", emails)
+print("Phones:", phones)
+print("URLs:", urls)</code></pre>
+            </div>
+          </div>
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">2</span><h3>Clean the text</h3></div>
+            <div class="lab-step-body">
+              <pre><code class="language-python">def clean(text):
+    text = re.sub(r'https?://\S+', '', text)   # remove URLs
+    text = re.sub(r'<[^>]+>', ' ', text)       # remove HTML
+    text = re.sub(r'\s+', ' ', text)           # collapse whitespace
+    return text.strip()
+
+print(clean(raw))</code></pre>
+            </div>
+          </div>
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">3</span><h3>Chunk a long document</h3></div>
+            <div class="lab-step-body">
+              <pre><code class="language-python">long = " ".join([f"sentence {i} about AI and Python." for i in range(500)])
+chunks = [long[i:i+500] for i in range(0, len(long), 400)]  # 100 char overlap
+print(f"Total chars: {len(long)}")
+print(f"Chunks: {len(chunks)}")
+print(f"First chunk preview: {chunks[0][:100]}")</code></pre>
+            </div>
+          </div>
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">4</span><h3>Validate structured data with regex</h3></div>
+            <div class="lab-step-body">
+              <pre><code class="language-python">def validate_date(s):
+    return bool(re.match(r'^\d{4}-\d{2}-\d{2}$', s))
+
+tests = ["2026-05-15", "05/15/2026", "2026-13-45", "2026-01-01"]
+for t in tests:
+    print(f"{t:15s} valid={validate_date(t)}")</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="tab-panel" data-panel="quiz" style="display:none">
+      <div id="quiz-container"></div>
+    </div>
+
+    <div class="session-nav-buttons">
+      <a href="/Python-for-AI/sessions/intermediate/15-web-scraping.html" class="session-nav-btn prev" id="prev-session">
+        <span class="nav-label">Previous</span>
+        <span class="nav-title">← Web Scraping for AI Data</span>
+      </a>
+      <a href="/Python-for-AI/sessions/advanced/17-build-chatbot.html" class="session-nav-btn next" id="next-session">
+        <span class="nav-label">Next</span>
+        <span class="nav-title">Build a CLI Chatbot →</span>
+      </a>
+    </div>
+  </main>
+</div>
+<div id="footer-placeholder"></div>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+<script src="/Python-for-AI/assets/js/progress.js"></script>
+<script src="/Python-for-AI/assets/js/quiz.js"></script>
+<script src="/Python-for-AI/assets/js/lab.js"></script>
+<script src="/Python-for-AI/assets/js/session.js"></script>
+<script src="/Python-for-AI/assets/js/main.js"></script>
+<script>
+window.SESSION_META = {
+  id: 'py-16',
+  title: 'Regex & Text Processing for AI',
+  section: 'intermediate',
+  quizData: [
+    { id:'q1', type:'mcq', question:'What does re.findall(pattern, text) return?',
+      options:[
+        {text:'A list of all non-overlapping matches in text',correct:true},
+        {text:'The first match only',correct:false},
+        {text:'A boolean indicating if the pattern was found',correct:false},
+        {text:'The position of the first match',correct:false},
+      ],
+      explanation:'findall() returns all matches as a list of strings. Use re.search() for the first match, re.match() to check the start.' },
+    { id:'q2', type:'mcq', question:'Which regex pattern matches an email address?',
+      options:[
+        {text:'[\\w.-]+@[\\w.-]+\\.[a-z]{2,}',correct:true},
+        {text:'\\w+\\.\\w+',correct:false},
+        {text:'@\\w+.com',correct:false},
+        {text:'[a-z]+@[a-z]+',correct:false},
+      ],
+      explanation:'Email patterns need: local part ([\\w.-]+), @ symbol, domain ([\\w.-]+), dot, and TLD ([a-z]{2,} for 2+ letters).' },
+    { id:'q3', type:'mcq', question:'What does re.sub(r"\\s+", " ", text) do?',
+      options:[
+        {text:'Replaces all runs of whitespace with a single space',correct:true},
+        {text:'Removes all whitespace',correct:false},
+        {text:'Counts whitespace occurrences',correct:false},
+        {text:'Splits text on whitespace',correct:false},
+      ],
+      explanation:'re.sub(pattern, replacement, text) replaces all matches of pattern with replacement. \\s+ matches one or more whitespace chars.' },
+    { id:'q4', type:'truefalse', question:'Chunking text with overlap helps preserve context at chunk boundaries for RAG systems.',
+      correctAnswer:true,
+      explanation:'Overlapping chunks ensure that sentences split at a boundary appear in both adjacent chunks, preserving context for retrieval.' },
+    { id:'q5', type:'mcq', question:'What is the rough rule of thumb for estimating token count from character count (OpenAI)?',
+      options:[
+        {text:'~4 characters per token',correct:true},
+        {text:'~1 character per token',correct:false},
+        {text:'~10 characters per token',correct:false},
+        {text:'~2 words per token',correct:false},
+      ],
+      explanation:'OpenAI tokenisation averages ~4 characters per token for English text, though punctuation and whitespace vary this.' },
+  ]
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Intermediate — Python for AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/main.css"/>
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="section-page">
+  <div class="section-hero section-hero-intermediate">
+    <div class="section-hero-inner">
+      <span class="section-badge badge-intermediate"><i class="fas fa-laptop-code"></i> Intermediate</span>
+      <h1>Intermediate Python for AI</h1>
+      <p>Work with real data using NumPy, pandas, and matplotlib. Call OpenAI and Claude APIs, scrape the web, and process text for AI pipelines.</p>
+      <div class="section-hero-meta">
+        <span><i class="fas fa-layer-group"></i> 8 Sessions</span>
+        <span><i class="fas fa-clock"></i> ~4.5 hours</span>
+        <span><i class="fas fa-flask"></i> 8 Labs</span>
+      </div>
+    </div>
+  </div>
+  <div class="section-grid-wrapper">
+    <div class="session-grid" id="session-grid"></div>
+  </div>
+</div>
+<div id="footer-placeholder"></div>
+<script src="/Python-for-AI/assets/js/progress.js"></script>
+<script src="/Python-for-AI/assets/js/main.js"></script>
+<script>
+window.SECTION_FILTER = 'intermediate';
+document.addEventListener('DOMContentLoaded', () => {
+  fetch('/Python-for-AI/data/sessions.json')
+    .then(r => r.json())
+    .then(data => {
+      const sec = data.sections.find(s => s.id === 'intermediate');
+      if (!sec) return;
+      const grid = document.getElementById('session-grid');
+      const progress = Progress.get();
+      sec.sessions.forEach(s => {
+        const done = progress.sessions?.[s.id]?.quizPassed;
+        grid.innerHTML += `
+          <a href="/Python-for-AI/${s.path.replace('/Python-for-AI/','')}" class="session-card ${done?'completed':''}">
+            <div class="session-card-badge badge-intermediate"><i class="fas fa-laptop-code"></i> Intermediate</div>
+            <h3>${s.title}</h3>
+            <div class="session-card-meta"><span><i class="fas fa-clock"></i> ${s.duration}</span>${done?'<span class="done-badge"><i class="fas fa-check-circle"></i> Done</span>':''}</div>
+          </a>`;
+      });
+    });
+});
+</script>
+</body>
+</html>

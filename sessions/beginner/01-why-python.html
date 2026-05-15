@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Why Python for AI? — Python for AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/main.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/session.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/quiz.css"/>
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="session-page-wrapper">
+  <aside id="session-sidebar"></aside>
+  <main>
+    <header class="session-header">
+      <div class="session-breadcrumb"><a href="/Python-for-AI/">Home</a><span class="sep">›</span><a href="/Python-for-AI/sections/beginner.html">Beginner</a><span class="sep">›</span><span>Session 01</span></div>
+      <h1 class="session-title">Why Python for AI?</h1>
+      <p class="session-tagline">Understand why Python became the language of AI, how the ecosystem works, and get your first code running in minutes.</p>
+      <div class="session-meta">
+        <span><i class="fas fa-clock"></i> 20 min</span>
+        <span><span class="badge badge-beginner"><i class="fas fa-seedling"></i> Beginner</span></span>
+        <span><i class="fas fa-flask"></i> Hands-on Lab</span>
+        <span><i class="fas fa-check-circle"></i> 5 Quiz Questions</span>
+      </div>
+    </header>
+    <div class="tab-nav">
+      <button class="tab-btn active" data-tab="learn"><i class="fas fa-book-open"></i> Learn</button>
+      <button class="tab-btn" data-tab="lab"><i class="fas fa-flask"></i> Lab</button>
+      <button class="tab-btn" data-tab="quiz"><i class="fas fa-check-circle"></i> Quiz</button>
+    </div>
+
+    <div class="tab-panel learn-content" data-panel="learn">
+      <h2>Python Dominates AI — Here's Why</h2>
+      <p>If you look at every major AI library — TensorFlow, PyTorch, scikit-learn, Hugging Face, LangChain, the OpenAI SDK — they're all Python-first. This isn't a coincidence. Python won the AI race for three reasons: readable syntax that reads like plain English, a massive ecosystem of scientific libraries, and a community that rallied around it early.</p>
+      <p>When Google released TensorFlow in 2015 and Facebook released PyTorch in 2016, both chose Python as the primary interface. That decision locked in Python's dominance. Today, over 75% of all machine learning repositories on GitHub are primarily Python.</p>
+      <div class="callout callout-info">
+        <i class="fas fa-lightbulb"></i>
+        <div><strong>The real reason Python won:</strong> Researchers are not professional software engineers. They needed a language fast to write, easy to read, and forgiving of imperfect code. Python delivered all three. Speed of experimentation beats speed of execution in research.</div>
+      </div>
+
+      <h2>Python vs the Alternatives</h2>
+      <div class="compare-grid">
+        <div class="compare-card">
+          <h4><i class="fas fa-chart-bar"></i> R</h4>
+          <ul>
+            <li>Great for statistical analysis</li>
+            <li>Excellent visualization (ggplot2)</li>
+            <li>Limited outside academia/stats</li>
+            <li>Smaller AI ecosystem</li>
+          </ul>
+        </div>
+        <div class="compare-card">
+          <h4><i class="fas fa-bolt"></i> Julia</h4>
+          <ul>
+            <li>Faster than Python for numerics</li>
+            <li>Gaining traction in science</li>
+            <li>Small ecosystem, few jobs</li>
+            <li>Steep learning curve</li>
+          </ul>
+        </div>
+        <div class="compare-card highlight-card">
+          <h4><i class="fab fa-python"></i> Python ✓</h4>
+          <ul>
+            <li>Every major AI library</li>
+            <li>Huge community & tutorials</li>
+            <li>Readable, beginner-friendly</li>
+            <li>Most AI jobs require it</li>
+          </ul>
+        </div>
+      </div>
+
+      <h2>The Python AI Ecosystem</h2>
+      <p>Python's power comes from its packages. You don't need to build everything from scratch — you install the right tools:</p>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Package</th><th>What It Does</th><th>Install</th></tr></thead>
+          <tbody>
+            <tr><td><strong>numpy</strong></td><td>Fast arrays and math — the foundation of all ML</td><td>pip install numpy</td></tr>
+            <tr><td><strong>pandas</strong></td><td>Data analysis and manipulation</td><td>pip install pandas</td></tr>
+            <tr><td><strong>matplotlib</strong></td><td>Plotting and visualization</td><td>pip install matplotlib</td></tr>
+            <tr><td><strong>scikit-learn</strong></td><td>Classical ML algorithms</td><td>pip install scikit-learn</td></tr>
+            <tr><td><strong>openai</strong></td><td>OpenAI API (GPT-4, etc.)</td><td>pip install openai</td></tr>
+            <tr><td><strong>anthropic</strong></td><td>Claude API</td><td>pip install anthropic</td></tr>
+            <tr><td><strong>langchain</strong></td><td>Build LLM applications</td><td>pip install langchain</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Setting Up: Google Colab (Recommended)</h2>
+      <p>For this course, we recommend <strong>Google Colab</strong> — a free, browser-based Python environment that requires zero installation. You get a Jupyter notebook with a GPU, access to all major packages, and your work is saved to Google Drive automatically.</p>
+      <div class="tip-box"><i class="fas fa-star"></i><div><strong>Go to Colab:</strong> Visit <a href="https://colab.research.google.com" target="_blank">colab.research.google.com</a> and sign in with your Google account. Click "New notebook". That's it — you're ready to code.</div></div>
+
+      <h2>Your First Python Code</h2>
+      <p>Let's write real Python right now. This is all you need to get started:</p>
+      <pre><code class="language-python"># This is a comment — Python ignores it
+print("Hello, AI world!")
+
+# Basic math
+print(2 + 2)        # 4
+print(10 / 3)       # 3.333...
+print(10 // 3)      # 3 (integer division)
+print(2 ** 8)       # 256 (2 to the power of 8)
+
+# Variables
+name = "Arunkumar"
+year = 2026
+print(f"Welcome, {name}! It's {year}.")
+
+# Check your Python version
+import sys
+print(sys.version)</code></pre>
+      <div class="warning-box"><i class="fas fa-exclamation-triangle"></i><div><strong>Python 3 only:</strong> This course uses Python 3.10+. If you're on an old machine with Python 2, use Google Colab — it always runs the latest Python 3.</div></div>
+    </div>
+
+    <div class="tab-panel" data-panel="lab" style="display:none">
+      <div class="lab-section">
+        <div class="lab-header">
+          <h2><i class="fas fa-flask"></i> Lab: Your First Python Session</h2>
+          <p>Open Google Colab and run your first Python code. No install needed.</p>
+        </div>
+        <div class="lab-steps">
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">1</span><h3>Open Google Colab</h3></div>
+            <div class="lab-step-body">
+              <p>Go to <a href="https://colab.research.google.com" target="_blank">colab.research.google.com</a>, sign in with Google, and click <strong>New notebook</strong>. You'll see a cell with a ▶ button on the left.</p>
+            </div>
+          </div>
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">2</span><h3>Run your first print</h3></div>
+            <div class="lab-step-body">
+              <p>Click in the cell, type the following, then press <strong>Shift+Enter</strong> to run:</p>
+              <pre><code class="language-python">print("Hello, Python for AI!")
+print(2 ** 10)  # Should output 1024</code></pre>
+              <p>You should see output below the cell immediately.</p>
+            </div>
+          </div>
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">3</span><h3>Create variables and an f-string</h3></div>
+            <div class="lab-step-body">
+              <p>Add a new cell (click <strong>+ Code</strong>) and run:</p>
+              <pre><code class="language-python">name = "Your Name"  # Replace with your actual name
+skill = "Python for AI"
+sessions = 22
+
+print(f"Hi, I'm {name}!")
+print(f"I'm learning {skill} across {sessions} sessions.")</code></pre>
+            </div>
+          </div>
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">4</span><h3>Install a package</h3></div>
+            <div class="lab-step-body">
+              <p>In Colab, you can install packages with <code>!</code> prefix. Run:</p>
+              <pre><code class="language-python">!pip install anthropic -q
+print("Package installed!")</code></pre>
+              <p>This shows how easy it is to add any library to your environment.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-panel" data-panel="quiz" style="display:none">
+      <div id="quiz-container"></div>
+    </div>
+
+    <div class="session-nav-buttons">
+      <span id="prev-session"></span>
+      <a href="/Python-for-AI/sessions/beginner/02-variables-types.html" class="session-nav-btn next" id="next-session">
+        <span class="nav-label">Next</span>
+        <span class="nav-title">Variables & Data Types →</span>
+      </a>
+    </div>
+  </main>
+</div>
+<div id="footer-placeholder"></div>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+<script src="/Python-for-AI/assets/js/progress.js"></script>
+<script src="/Python-for-AI/assets/js/quiz.js"></script>
+<script src="/Python-for-AI/assets/js/lab.js"></script>
+<script src="/Python-for-AI/assets/js/session.js"></script>
+<script src="/Python-for-AI/assets/js/main.js"></script>
+<script>
+window.SESSION_META = {
+  id: 'py-01',
+  title: 'Why Python for AI?',
+  section: 'beginner',
+  quizData: [
+    { id:'q1', type:'mcq', question:'Which command is used to install Python packages?',
+      options:[{text:'pip install',correct:true},{text:'npm install',correct:false},{text:'brew install',correct:false},{text:'apt-get install',correct:false}],
+      explanation:'pip is Python\'s standard package installer, used to install packages from PyPI (Python Package Index).' },
+    { id:'q2', type:'mcq', question:'What is Google Colab?',
+      options:[{text:'A free browser-based Python environment with GPU access',correct:true},{text:'A Python IDE you install locally',correct:false},{text:'A Python version manager',correct:false},{text:'A package for data visualization',correct:false}],
+      explanation:'Google Colab is a free Jupyter notebook environment in the browser. No installation needed — perfect for AI/ML work.' },
+    { id:'q3', type:'mcq', question:'Which of these is the correct way to print in Python 3?',
+      options:[{text:'print("Hello")',correct:true},{text:'print "Hello"',correct:false},{text:'echo "Hello"',correct:false},{text:'console.log("Hello")',correct:false}],
+      explanation:'In Python 3, print() is a function and requires parentheses. print "Hello" was Python 2 syntax.' },
+    { id:'q4', type:'truefalse', question:'Python is the primary language used by TensorFlow, PyTorch, and the OpenAI SDK.',
+      correctAnswer:true,
+      explanation:'All major AI frameworks and SDKs offer Python as their primary interface, which is why Python dominates AI development.' },
+    { id:'q5', type:'mcq', question:'What does 2 ** 8 evaluate to in Python?',
+      options:[{text:'256',correct:true},{text:'16',correct:false},{text:'64',correct:false},{text:'28',correct:false}],
+      explanation:'** is the exponentiation operator in Python. 2 ** 8 means 2 to the power of 8, which equals 256.' }
+  ]
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Build an AI Data Pipeline — Python for AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/main.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/session.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/quiz.css"/>
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="session-page-wrapper">
+  <aside id="session-sidebar"></aside>
+  <main>
+    <header class="session-header">
+      <div class="session-breadcrumb"><a href="/Python-for-AI/">Home</a><span class="sep">›</span><a href="/Python-for-AI/sections/advanced.html">Advanced</a><span class="sep">›</span><span>Session 21</span></div>
+      <h1 class="session-title">Build an AI Data Pipeline</h1>
+      <p class="session-tagline">Design and build a complete automated pipeline that fetches, cleans, enriches with AI, and stores data at scale.</p>
+      <div class="session-meta">
+        <span><i class="fas fa-clock"></i> 40 min</span>
+        <span><span class="badge badge-advanced"><i class="fas fa-rocket"></i> Advanced</span></span>
+        <span><i class="fas fa-flask"></i> Hands-on Lab</span>
+        <span><i class="fas fa-check-circle"></i> 5 Quiz Questions</span>
+      </div>
+    </header>
+    <div class="tab-nav">
+      <button class="tab-btn active" data-tab="learn"><i class="fas fa-book-open"></i> Learn</button>
+      <button class="tab-btn" data-tab="lab"><i class="fas fa-flask"></i> Lab</button>
+      <button class="tab-btn" data-tab="quiz"><i class="fas fa-check-circle"></i> Quiz</button>
+    </div>
+
+    <div class="tab-panel learn-content" data-panel="learn">
+      <h2>What Is an AI Data Pipeline?</h2>
+      <p>An AI data pipeline is a series of automated steps that takes raw data → cleans it → enriches it with AI → stores the results. Instead of running scripts manually, the pipeline runs on a schedule or trigger and processes data at scale.</p>
+      <p>Example: Fetch customer reviews → clean text → classify sentiment with AI → extract key topics → store in database → send weekly report. This entire workflow can be automated in Python.</p>
+
+      <h2>Pipeline Architecture</h2>
+      <pre><code class="language-python">from dataclasses import dataclass
+from typing import Optional
+
+@dataclass
+class Review:
+    id: int
+    text: str
+    source: str
+    sentiment: Optional[str] = None
+    topics: Optional[list] = None
+    processed: bool = False
+
+# Each stage is a pure function: data in, data out
+def fetch_reviews(source_url: str) -> list[Review]:   ...
+def clean_reviews(reviews: list[Review]) -> list[Review]:  ...
+def classify_sentiment(reviews: list[Review]) -> list[Review]:  ...
+def extract_topics(reviews: list[Review]) -> list[Review]:  ...
+def save_results(reviews: list[Review], db_path: str) -> int:  ...
+
+def run_pipeline(source_url: str, db_path: str):
+    print("Fetching...")
+    reviews = fetch_reviews(source_url)
+    print(f"Cleaning {len(reviews)} reviews...")
+    reviews = clean_reviews(reviews)
+    print("Classifying sentiment...")
+    reviews = classify_sentiment(reviews)
+    print("Extracting topics...")
+    reviews = extract_topics(reviews)
+    n = save_results(reviews, db_path)
+    print(f"Pipeline done. Saved {n} reviews.")</code></pre>
+
+      <h2>Batch AI Processing with Rate Limiting</h2>
+      <pre><code class="language-python">import time
+from anthropic import Anthropic
+
+client = Anthropic()
+
+def classify_batch(reviews: list[Review], batch_size=10) -> list[Review]:
+    results = []
+    for i in range(0, len(reviews), batch_size):
+        batch = reviews[i:i+batch_size]
+        for review in batch:
+            try:
+                r = client.messages.create(
+                    model="claude-opus-4-5", max_tokens=10,
+                    messages=[{"role":"user","content":
+                        f"Classify as positive/negative/neutral:\n{review.text}\nRespond with one word only."
+                    }]
+                )
+                review.sentiment = r.content[0].text.strip().lower()
+            except Exception as e:
+                print(f"Error on review {review.id}: {e}")
+                review.sentiment = "error"
+            results.append(review)
+        time.sleep(0.5)  # rate limit: 2 batches/sec max
+        print(f"  Processed {min(i+batch_size, len(reviews))}/{len(reviews)}")
+    return results</code></pre>
+
+      <h2>Saving to SQLite (Simple Database)</h2>
+      <pre><code class="language-python">import sqlite3, json
+
+def save_to_db(reviews: list[Review], db="reviews.db") -> int:
+    conn = sqlite3.connect(db)
+    conn.execute("""CREATE TABLE IF NOT EXISTS reviews (
+        id INTEGER PRIMARY KEY, text TEXT, source TEXT,
+        sentiment TEXT, topics TEXT, processed INTEGER DEFAULT 1
+    )""")
+    rows = [(r.id, r.text, r.source, r.sentiment, json.dumps(r.topics), 1) for r in reviews]
+    conn.executemany("INSERT OR REPLACE INTO reviews VALUES (?,?,?,?,?,?)", rows)
+    conn.commit()
+    n = len(rows)
+    conn.close()
+    return n
+
+def query_results(db="reviews.db") -> None:
+    conn = sqlite3.connect(db)
+    for row in conn.execute("SELECT sentiment, COUNT(*) FROM reviews GROUP BY sentiment"):
+        print(f"{row[0]:10s}: {row[1]}")
+    conn.close()</code></pre>
+      <div class="tip-box"><i class="fas fa-star"></i><div><strong>Scaling up:</strong> When your pipeline needs to run faster, switch from sequential processing to asyncio.gather() for concurrent API calls. For very large datasets (millions of rows), look at Apache Airflow or Prefect for orchestration.</div></div>
+
+    </div>
+
+    <div class="tab-panel" data-panel="lab" style="display:none">
+      <div class="lab-section">
+        <div class="lab-header">
+          <h2><i class="fas fa-flask"></i> Lab: Build a Product Review Pipeline</h2>
+          <p>Build an end-to-end pipeline that fetches, cleans, classifies, and stores Amazon-style reviews.</p>
+        </div>
+        <div class="lab-steps">
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">1</span><h3>Create sample review data</h3></div>
+            <div class="lab-step-body">
+              <pre><code class="language-python">reviews_raw = [
+    {"id":1,"text":"Absolutely love this product! Works perfectly and arrived fast.","source":"amazon"},
+    {"id":2,"text":"Terrible. Broke after 2 days. Complete waste of money.","source":"amazon"},
+    {"id":3,"text":"It's okay. Does what it says but nothing special.","source":"amazon"},
+    {"id":4,"text":"Great value! Exceeded my expectations. Will buy again.","source":"amazon"},
+    {"id":5,"text":"Not what I expected. The quality feels cheap and plastic.","source":"amazon"},
+]
+print(f"Loaded {len(reviews_raw)} reviews")</code></pre>
+            </div>
+          </div>
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">2</span><h3>Clean and classify with AI</h3></div>
+            <div class="lab-step-body">
+              <pre><code class="language-python">import anthropic, re, time, os
+client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY",""))
+
+def clean(text):
+    return re.sub(r'\s+', ' ', text).strip()
+
+def classify(text):
+    r = client.messages.create(
+        model="claude-opus-4-5", max_tokens=5,
+        messages=[{"role":"user","content":
+            f"Classify as: positive, negative, or neutral. One word only.\n{text}"}]
+    )
+    return r.content[0].text.strip().lower()
+
+results = []
+for rev in reviews_raw:
+    cleaned = clean(rev["text"])
+    sentiment = classify(cleaned)
+    results.append({**rev, "cleaned": cleaned, "sentiment": sentiment})
+    print(f"  [{rev['id']}] {sentiment:9s} | {cleaned[:50]}")
+    time.sleep(0.3)</code></pre>
+            </div>
+          </div>
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">3</span><h3>Save to database and query</h3></div>
+            <div class="lab-step-body">
+              <pre><code class="language-python">import sqlite3, json
+
+conn = sqlite3.connect("reviews.db")
+conn.execute("CREATE TABLE IF NOT EXISTS reviews (id INTEGER PRIMARY KEY, text TEXT, cleaned TEXT, sentiment TEXT, source TEXT)")
+for r in results:
+    conn.execute("INSERT OR REPLACE INTO reviews VALUES (?,?,?,?,?)",
+        (r["id"], r["text"], r["cleaned"], r["sentiment"], r["source"]))
+conn.commit()
+
+print("\nSentiment breakdown:")
+for row in conn.execute("SELECT sentiment, COUNT(*) n FROM reviews GROUP BY sentiment ORDER BY n DESC"):
+    print(f"  {row[0]:10s}: {row[1]}")
+conn.close()</code></pre>
+            </div>
+          </div>
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">4</span><h3>Generate a summary report</h3></div>
+            <div class="lab-step-body">
+              <pre><code class="language-python">import pandas as pd
+df = pd.read_sql("SELECT * FROM reviews", sqlite3.connect("reviews.db"))
+print(df[["id","sentiment","cleaned"]].to_string())
+
+# Ask AI to summarise the overall feedback
+all_reviews = "\n".join(f"- {r['cleaned']}" for r in results)
+report = client.messages.create(
+    model="claude-opus-4-5", max_tokens=200,
+    messages=[{"role":"user","content":f"Summarise customer feedback in 3 bullet points:\n{all_reviews}"}]
+)
+print("\nAI Report:\n", report.content[0].text)</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="tab-panel" data-panel="quiz" style="display:none">
+      <div id="quiz-container"></div>
+    </div>
+
+    <div class="session-nav-buttons">
+      <a href="/Python-for-AI/sessions/advanced/20-streamlit.html" class="session-nav-btn prev" id="prev-session">
+        <span class="nav-label">Previous</span>
+        <span class="nav-title">← Build AI Web Apps with Streamlit</span>
+      </a>
+      <a href="/Python-for-AI/sessions/advanced/22-capstone.html" class="session-nav-btn next" id="next-session">
+        <span class="nav-label">Next</span>
+        <span class="nav-title">Capstone: Your AI App →</span>
+      </a>
+    </div>
+  </main>
+</div>
+<div id="footer-placeholder"></div>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+<script src="/Python-for-AI/assets/js/progress.js"></script>
+<script src="/Python-for-AI/assets/js/quiz.js"></script>
+<script src="/Python-for-AI/assets/js/lab.js"></script>
+<script src="/Python-for-AI/assets/js/session.js"></script>
+<script src="/Python-for-AI/assets/js/main.js"></script>
+<script>
+window.SESSION_META = {
+  id: 'py-21',
+  title: 'Build an AI Data Pipeline',
+  section: 'advanced',
+  quizData: [
+    { id:'q1', type:'mcq', question:'What is the main benefit of structuring a pipeline as separate pure functions?',
+      options:[
+        {text:'Each stage is independently testable, replaceable, and debuggable',correct:true},
+        {text:'It makes the code run faster',correct:false},
+        {text:'It reduces API costs',correct:false},
+        {text:"It is required by Anthropic's API terms",correct:false},
+      ],
+      explanation:'Pure functions (same input always gives same output, no side effects) are easier to test and replace without breaking other stages.' },
+    { id:'q2', type:'mcq', question:'Why add time.sleep() between batches in a data pipeline calling an AI API?',
+      options:[
+        {text:'To avoid hitting rate limits (requests per minute) and getting 429 errors',correct:true},
+        {text:'To save on API costs',correct:false},
+        {text:'To allow the model to cool down',correct:false},
+        {text:'To let the database catch up',correct:false},
+      ],
+      explanation:'Most LLM APIs have rate limits (e.g., 60 requests/minute). Sleeping between batches prevents 429 Too Many Requests errors.' },
+    { id:'q3', type:'mcq', question:'What does conn.executemany() do in SQLite?',
+      options:[
+        {text:'Inserts multiple rows in a single efficient call',correct:true},
+        {text:'Creates multiple database connections',correct:false},
+        {text:'Runs the same query multiple times in parallel',correct:false},
+        {text:'Validates multiple SQL statements',correct:false},
+      ],
+      explanation:'executemany() is more efficient than looping over execute() — it batches the inserts into the database in one operation.' },
+    { id:'q4', type:'truefalse', question:'A pipeline should stop completely if one item fails to process.',
+      correctAnswer:false,
+      explanation:'Good pipelines handle per-item errors gracefully (try/except, log the error, mark as failed) and continue processing the rest of the batch.' },
+    { id:'q5', type:'mcq', question:'What is Apache Airflow or Prefect used for in data engineering?',
+      options:[
+        {text:'Orchestrating and scheduling complex pipelines with dependencies, retries, and monitoring',correct:true},
+        {text:'Running Python code faster than the standard interpreter',correct:false},
+        {text:'Replacing pandas for large datasets',correct:false},
+        {text:'Deploying Flask APIs to production',correct:false},
+      ],
+      explanation:'Airflow and Prefect are workflow orchestration tools. They schedule pipelines, visualise task graphs, handle retries, and send alerts on failure.' },
+  ]
+};
+</script>
+</body>
+</html>

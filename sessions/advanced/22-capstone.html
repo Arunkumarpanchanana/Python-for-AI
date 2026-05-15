@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Capstone: Your AI App — Python for AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/main.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/session.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/quiz.css"/>
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="session-page-wrapper">
+  <aside id="session-sidebar"></aside>
+  <main>
+    <header class="session-header">
+      <div class="session-breadcrumb"><a href="/Python-for-AI/">Home</a><span class="sep">›</span><a href="/Python-for-AI/sections/advanced.html">Advanced</a><span class="sep">›</span><span>Session 22</span></div>
+      <h1 class="session-title">Capstone: Your AI App</h1>
+      <p class="session-tagline">Choose your project track and build a complete, deployed AI application — the portfolio piece that proves your Python for AI skills.</p>
+      <div class="session-meta">
+        <span><i class="fas fa-clock"></i> 60 min</span>
+        <span><span class="badge badge-advanced"><i class="fas fa-rocket"></i> Advanced</span></span>
+        <span><i class="fas fa-flask"></i> Hands-on Lab</span>
+        <span><i class="fas fa-check-circle"></i> 5 Quiz Questions</span>
+      </div>
+    </header>
+    <div class="tab-nav">
+      <button class="tab-btn active" data-tab="learn"><i class="fas fa-book-open"></i> Learn</button>
+      <button class="tab-btn" data-tab="lab"><i class="fas fa-flask"></i> Lab</button>
+      <button class="tab-btn" data-tab="quiz"><i class="fas fa-check-circle"></i> Quiz</button>
+    </div>
+
+    <div class="tab-panel learn-content" data-panel="learn">
+      <h2>You Have Built the Skills. Now Build the App.</h2>
+      <p>This capstone session is your chance to combine everything you have learned — Python, NumPy, Pandas, APIs, async, scraping, text processing, Flask, Streamlit, RAG, and chatbots — into one complete, deployable AI application.</p>
+      <p>There is no lecture. The challenge is to pick a track, build a working app, and deploy it so others can use it. This is the portfolio piece you will link in your resume.</p>
+
+      <h2>Choose Your Track</h2>
+      <div class="compare-grid">
+        <div class="compare-card">
+          <h4><i class="fas fa-robot"></i> Track A: AI Writing Coach</h4>
+          <ul><li>Streamlit app with 5+ writing tools</li><li>Grammar, tone, summarise, expand, translate</li><li>User selects style (formal/casual/creative)</li><li>Download improved text as .txt</li></ul>
+        </div>
+        <div class="compare-card">
+          <h4><i class="fas fa-book"></i> Track B: Document Q&A Bot</h4>
+          <ul><li>RAG system over user-uploaded PDFs</li><li>Streamlit file uploader → chunk → embed</li><li>Chat interface to ask questions</li><li>Show source chunks used</li></ul>
+        </div>
+        <div class="compare-card highlight-card">
+          <h4><i class="fas fa-chart-line"></i> Track C: Data Insight Engine</h4>
+          <ul><li>Upload any CSV and get AI analysis</li><li>Auto-generate pandas summaries + charts</li><li>Ask natural language questions about data</li><li>Export AI report as PDF</li></ul>
+        </div>
+        <div class="compare-card">
+          <h4><i class="fas fa-code"></i> Track D: AI Code Assistant API</h4>
+          <ul><li>Flask REST API with 4+ endpoints</li><li>review_code, fix_bug, explain_code, convert_language</li><li>Swagger/OpenAPI docs auto-generated</li><li>Deployed to Railway or Render</li></ul>
+        </div>
+      </div>
+
+      <h2>Project Requirements (All Tracks)</h2>
+      <div class="table-wrap"><table class="data-table"><thead><tr><th>Requirement</th><th>Details</th></tr></thead><tbody>
+        <tr><td>Python 3.10+</td><td>Modern Python features allowed (match, walrus, type hints)</td></tr>
+        <tr><td>AI integration</td><td>Must call at least one LLM API (Claude or OpenAI)</td></tr>
+        <tr><td>User interface</td><td>Streamlit app OR Flask REST API with working endpoints</td></tr>
+        <tr><td>Error handling</td><td>Graceful errors — no raw stack traces shown to users</td></tr>
+        <tr><td>Deployed</td><td>Public URL (Streamlit Cloud, Railway, Render, etc.)</td></tr>
+        <tr><td>README</td><td>What it does, how to run it, what APIs it uses</td></tr>
+      </tbody></table></div>
+
+      <h2>Starter Template</h2>
+      <pre><code class="language-python"># capstone/app.py -- starter template
+import streamlit as st
+from anthropic import Anthropic
+import os
+
+st.set_page_config(page_title="My AI App", page_icon="+")
+st.title("My AI App")
+
+client = Anthropic(api_key=st.secrets.get("ANTHROPIC_API_KEY", os.environ.get("ANTHROPIC_API_KEY","")))
+
+# ---- Your app logic goes here ----
+
+with st.sidebar:
+    st.header("Settings")
+    model = st.selectbox("Model", ["claude-opus-4-5", "claude-haiku-3-5"])
+    max_tokens = st.slider("Max tokens", 100, 2000, 500)
+
+st.info("Add your main app UI here. Check the session notes for patterns to borrow.")</code></pre>
+
+      <h2>Submission Checklist</h2>
+      <div class="callout callout-info"><i class="fas fa-check-square"></i><div>
+        <ul>
+          <li>[ ] App runs locally without errors</li>
+          <li>[ ] App is deployed to a public URL</li>
+          <li>[ ] API key is stored securely (Streamlit secrets or env var)</li>
+          <li>[ ] README explains what the app does and how to run it</li>
+          <li>[ ] Code is pushed to a public GitHub repository</li>
+          <li>[ ] You have tested all features with real inputs</li>
+        </ul>
+      </div></div>
+
+    </div>
+
+    <div class="tab-panel" data-panel="lab" style="display:none">
+      <div class="lab-section">
+        <div class="lab-header">
+          <h2><i class="fas fa-flask"></i> Capstone Build: Start Here</h2>
+          <p>Pick your track and follow the step-by-step build guide.</p>
+        </div>
+        <div class="lab-steps">
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">1</span><h3>Set up your project</h3></div>
+            <div class="lab-step-body">
+              <pre><code class="language-python">mkdir my-ai-capstone
+cd my-ai-capstone
+python3 -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+pip install streamlit anthropic openai pandas numpy requests beautifulsoup4
+pip freeze > requirements.txt</code></pre>
+            </div>
+          </div>
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">2</span><h3>Build your core feature</h3></div>
+            <div class="lab-step-body">
+              <p>Start with the single most important feature of your chosen track. Get it working end-to-end before adding anything else. Refer back to the session notebooks for copy-paste patterns.</p>
+              <pre><code class="language-python"># Track A starter: Writing Coach
+import streamlit as st
+from anthropic import Anthropic
+import os
+
+client = Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY",""))
+text = st.text_area("Paste your text:")
+if st.button("Improve") and text:
+    r = client.messages.create(
+        model="claude-opus-4-5", max_tokens=500,
+        messages=[{"role":"user","content":f"Make this more professional:\n{text}"}])
+    st.write(r.content[0].text)</code></pre>
+            </div>
+          </div>
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">3</span><h3>Add error handling and polish</h3></div>
+            <div class="lab-step-body">
+              <pre><code class="language-python">try:
+    with st.spinner("Calling AI..."):
+        r = client.messages.create(...)
+    st.success("Done!")
+    st.write(r.content[0].text)
+except Exception as e:
+    st.error(f"Something went wrong: {e}")</code></pre>
+            </div>
+          </div>
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">4</span><h3>Deploy and share</h3></div>
+            <div class="lab-step-body">
+              <p>Push to GitHub, then deploy on <a href="https://share.streamlit.io" target="_blank">Streamlit Cloud</a> (free). Add your API key under Settings → Secrets. Share your public URL in the course community!</p>
+              <pre><code class="language-python">git init
+git add .
+git commit -m "Initial capstone: AI Writing Coach"
+git remote add origin https://github.com/YOUR_USERNAME/my-ai-capstone.git
+git push -u origin main</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="tab-panel" data-panel="quiz" style="display:none">
+      <div id="quiz-container"></div>
+    </div>
+
+    <div class="session-nav-buttons">
+      <a href="/Python-for-AI/sessions/advanced/21-ai-data-pipeline.html" class="session-nav-btn prev" id="prev-session">
+        <span class="nav-label">Previous</span>
+        <span class="nav-title">← Build an AI Data Pipeline</span>
+      </a>
+      <span id="next-session"></span>
+    </div>
+  </main>
+</div>
+<div id="footer-placeholder"></div>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+<script src="/Python-for-AI/assets/js/progress.js"></script>
+<script src="/Python-for-AI/assets/js/quiz.js"></script>
+<script src="/Python-for-AI/assets/js/lab.js"></script>
+<script src="/Python-for-AI/assets/js/session.js"></script>
+<script src="/Python-for-AI/assets/js/main.js"></script>
+<script>
+window.SESSION_META = {
+  id: 'py-22',
+  title: 'Capstone: Your AI App',
+  section: 'advanced',
+  quizData: [
+    { id:'q1', type:'mcq', question:'What is the most important first step when starting a Python project?',
+      options:[
+        {text:'Create a virtual environment to isolate dependencies',correct:true},
+        {text:'Write all the code first, then test',correct:false},
+        {text:'Install all possible libraries upfront',correct:false},
+        {text:'Set up CI/CD before writing code',correct:false},
+      ],
+      explanation:'Virtual environments prevent dependency conflicts between projects. Always create one with python3 -m venv venv before installing packages.' },
+    { id:'q2', type:'mcq', question:'What file lists all packages needed to reproduce your project environment?',
+      options:[
+        {text:'requirements.txt (generated by pip freeze > requirements.txt)',correct:true},
+        {text:'packages.json',correct:false},
+        {text:'setup.cfg',correct:false},
+        {text:'Pipfile only',correct:false},
+      ],
+      explanation:'requirements.txt is the standard Python convention. pip freeze outputs all installed packages with exact versions.' },
+    { id:'q3', type:'mcq', question:'Where should you store your API key when deploying to Streamlit Cloud?',
+      options:[
+        {text:'Settings → Secrets in the Streamlit Cloud dashboard',correct:true},
+        {text:'In a .env file committed to GitHub',correct:false},
+        {text:'Hardcoded as a constant in app.py',correct:false},
+        {text:"In the app's URL as a query parameter",correct:false},
+      ],
+      explanation:'Streamlit Cloud Secrets are encrypted and injected at runtime. Never commit API keys to version control — bots scan GitHub constantly.' },
+    { id:'q4', type:'truefalse', question:'A well-built AI app should show raw Python stack traces to users when errors occur.',
+      correctAnswer:false,
+      explanation:'Raw stack traces expose implementation details and confuse users. Use try/except to catch errors and show friendly error messages with st.error().' },
+    { id:'q5', type:'mcq', question:'What is the best first feature to build in a new app?',
+      options:[
+        {text:'The single most important user-facing feature, end-to-end',correct:true},
+        {text:'The database schema and authentication system',correct:false},
+        {text:'The complete UI with all widgets first',correct:false},
+        {text:'Unit tests for code that does not exist yet',correct:false},
+      ],
+      explanation:'Build the core user value first. Get one thing working end-to-end before adding features. This validates your approach and keeps momentum.' },
+  ]
+};
+</script>
+</body>
+</html>

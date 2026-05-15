@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Async Python & Concurrency — Python for AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/main.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/session.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/quiz.css"/>
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="session-page-wrapper">
+  <aside id="session-sidebar"></aside>
+  <main>
+    <header class="session-header">
+      <div class="session-breadcrumb"><a href="/Python-for-AI/">Home</a><span class="sep">›</span><a href="/Python-for-AI/sections/intermediate.html">Intermediate</a><span class="sep">›</span><span>Session 14</span></div>
+      <h1 class="session-title">Async Python & Concurrency</h1>
+      <p class="session-tagline">Use asyncio and aiohttp to make multiple AI API calls concurrently — turning 60 seconds of sequential waits into 6.</p>
+      <div class="session-meta">
+        <span><i class="fas fa-clock"></i> 35 min</span>
+        <span><span class="badge badge-intermediate"><i class="fas fa-laptop-code"></i> Intermediate</span></span>
+        <span><i class="fas fa-flask"></i> Hands-on Lab</span>
+        <span><i class="fas fa-check-circle"></i> 5 Quiz Questions</span>
+      </div>
+    </header>
+    <div class="tab-nav">
+      <button class="tab-btn active" data-tab="learn"><i class="fas fa-book-open"></i> Learn</button>
+      <button class="tab-btn" data-tab="lab"><i class="fas fa-flask"></i> Lab</button>
+      <button class="tab-btn" data-tab="quiz"><i class="fas fa-check-circle"></i> Quiz</button>
+    </div>
+
+    <div class="tab-panel learn-content" data-panel="learn">
+      <h2>Why Async Matters for AI Apps</h2>
+      <p>AI API calls are slow — a GPT-4 response can take 5–30 seconds. If your app calls 10 APIs sequentially, you wait 50–300 seconds. With async, you launch all 10 calls simultaneously and wait for the slowest one — reducing total time to that single call's duration.</p>
+      <div class="callout callout-info"><i class="fas fa-lightbulb"></i><div><strong>The key insight:</strong> Async is not about running code in parallel threads. It's about not wasting time waiting. While one API call is in-flight, your program handles other work.</div></div>
+
+      <h2>async / await Basics</h2>
+      <pre><code class="language-python">import asyncio
+
+# Define an async function
+async def fetch_data(name: str) -> str:
+    print(f"Starting {name}")
+    await asyncio.sleep(1)  # simulates an API call
+    print(f"Done {name}")
+    return f"Result from {name}"
+
+# Run it
+result = asyncio.run(fetch_data("task1"))
+print(result)</code></pre>
+
+      <h2>Running Tasks Concurrently</h2>
+      <pre><code class="language-python">import asyncio, time
+
+async def api_call(n: int) -> str:
+    await asyncio.sleep(2)  # each call takes 2 seconds
+    return f"Response {n}"
+
+async def main():
+    start = time.time()
+    # Sequential: 3 * 2 = 6 seconds
+    # results = [await api_call(i) for i in range(3)]
+    
+    # Concurrent: max(2,2,2) = 2 seconds
+    results = await asyncio.gather(
+        api_call(1), api_call(2), api_call(3)
+    )
+    print(f"Time: {time.time()-start:.1f}s")  # ~2.0s not 6.0s
+    print(results)
+
+asyncio.run(main())</code></pre>
+
+      <h2>Async with Real HTTP (aiohttp)</h2>
+      <pre><code class="language-python">pip install aiohttp</code></pre>
+      <pre><code class="language-python">import asyncio, aiohttp
+
+async def fetch(session, url):
+    async with session.get(url) as resp:
+        return await resp.json()
+
+async def main():
+    urls = [
+        "https://api.github.com/users/python",
+        "https://api.github.com/users/tensorflow",
+        "https://api.github.com/users/pytorch",
+    ]
+    async with aiohttp.ClientSession() as session:
+        tasks = [fetch(session, url) for url in urls]
+        results = await asyncio.gather(*tasks)
+    for r in results:
+        print(r["login"], r["public_repos"])
+
+asyncio.run(main())</code></pre>
+
+      <h2>Async with the Anthropic SDK</h2>
+      <pre><code class="language-python">import asyncio, anthropic, os
+
+client = anthropic.AsyncAnthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+
+async def summarise(text: str) -> str:
+    msg = await client.messages.create(
+        model="claude-opus-4-5", max_tokens=200,
+        messages=[{"role":"user","content":f"Summarise in 1 sentence: {text}"}]
+    )
+    return msg.content[0].text
+
+async def main():
+    texts = ["Text about AI...", "Text about Python...", "Text about async..."]
+    summaries = await asyncio.gather(*[summarise(t) for t in texts])
+    for s in summaries: print(s)
+
+asyncio.run(main())  # 3 calls in parallel!</code></pre>
+      <div class="tip-box"><i class="fas fa-star"></i><div><strong>Rule of thumb:</strong> Use async when your bottleneck is waiting (I/O — network, disk). Use multiprocessing when your bottleneck is computation (CPU-heavy math). Most AI app bottlenecks are I/O.</div></div>
+
+    </div>
+
+    <div class="tab-panel" data-panel="lab" style="display:none">
+      <div class="lab-section">
+        <div class="lab-header">
+          <h2><i class="fas fa-flask"></i> Lab: Parallel AI Summarisation</h2>
+          <p>Use async to summarise multiple texts simultaneously, measuring the speed improvement over sequential calls.</p>
+        </div>
+        <div class="lab-steps">
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">1</span><h3>Understand asyncio.gather</h3></div>
+            <div class="lab-step-body">
+              <pre><code class="language-python">import asyncio, time
+
+async def slow_task(n):
+    await asyncio.sleep(1)
+    return f"Task {n} done"
+
+async def main():
+    start = time.time()
+    results = await asyncio.gather(*[slow_task(i) for i in range(5)])
+    print(f"5 tasks in {time.time()-start:.2f}s")  # ~1s not 5s
+    print(results)
+
+await main()  # In Colab, use await directly (no asyncio.run needed)</code></pre>
+            </div>
+          </div>
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">2</span><h3>Sequential vs parallel API calls</h3></div>
+            <div class="lab-step-body">
+              <pre><code class="language-python">import aiohttp, time
+
+urls = [
+    "https://api.github.com/users/python",
+    "https://api.github.com/users/tensorflow",
+    "https://api.github.com/users/keras-team",
+    "https://api.github.com/users/huggingface",
+]
+
+async def fetch(session, url):
+    async with session.get(url) as r:
+        d = await r.json()
+        return d["login"], d["public_repos"]
+
+async def main():
+    async with aiohttp.ClientSession() as session:
+        start = time.time()
+        results = await asyncio.gather(*[fetch(session, u) for u in urls])
+        print(f"4 requests in {time.time()-start:.2f}s")
+        for login, repos in results:
+            print(f"{login}: {repos} repos")
+
+await main()</code></pre>
+            </div>
+          </div>
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">3</span><h3>Error handling in async</h3></div>
+            <div class="lab-step-body">
+              <pre><code class="language-python">async def safe_fetch(session, url):
+    try:
+        async with session.get(url, timeout=aiohttp.ClientTimeout(total=5)) as r:
+            r.raise_for_status()
+            return await r.json()
+    except Exception as e:
+        return {"error": str(e), "url": url}
+
+async def main():
+    test_urls = urls + ["https://api.github.com/nonexistent/fake/repo"]
+    async with aiohttp.ClientSession() as session:
+        results = await asyncio.gather(*[safe_fetch(session, u) for u in test_urls])
+    for r in results:
+        if "error" in r:
+            print(f"Failed: {r}")
+        else:
+            print(f"OK: {r.get('login', r.get('message', '??'))}")
+
+await main()</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="tab-panel" data-panel="quiz" style="display:none">
+      <div id="quiz-container"></div>
+    </div>
+
+    <div class="session-nav-buttons">
+      <a href="/Python-for-AI/sessions/intermediate/13-openai-api.html" class="session-nav-btn prev" id="prev-session">
+        <span class="nav-label">Previous</span>
+        <span class="nav-title">← Using the OpenAI & Claude API</span>
+      </a>
+      <a href="/Python-for-AI/sessions/intermediate/15-web-scraping.html" class="session-nav-btn next" id="next-session">
+        <span class="nav-label">Next</span>
+        <span class="nav-title">Web Scraping for AI Data →</span>
+      </a>
+    </div>
+  </main>
+</div>
+<div id="footer-placeholder"></div>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+<script src="/Python-for-AI/assets/js/progress.js"></script>
+<script src="/Python-for-AI/assets/js/quiz.js"></script>
+<script src="/Python-for-AI/assets/js/lab.js"></script>
+<script src="/Python-for-AI/assets/js/session.js"></script>
+<script src="/Python-for-AI/assets/js/main.js"></script>
+<script>
+window.SESSION_META = {
+  id: 'py-14',
+  title: 'Async Python & Concurrency',
+  section: 'intermediate',
+  quizData: [
+    { id:'q1', type:'mcq', question:'What does asyncio.gather() do?',
+      options:[
+        {text:'Runs multiple coroutines concurrently and waits for all to complete',correct:true},
+        {text:'Runs coroutines one after another in sequence',correct:false},
+        {text:'Creates a new thread for each coroutine',correct:false},
+        {text:'Cancels slow tasks after a timeout',correct:false},
+      ],
+      explanation:'asyncio.gather() schedules all coroutines to run concurrently in the event loop and collects their results.' },
+    { id:'q2', type:'mcq', question:'When should you use async/await instead of regular functions?',
+      options:[
+        {text:'When your code spends time waiting for I/O (network, file, database)',correct:true},
+        {text:'When you need faster CPU-bound math',correct:false},
+        {text:'When you want to use multiple CPU cores',correct:false},
+        {text:'When your functions have no return value',correct:false},
+      ],
+      explanation:'Async is designed for I/O-bound work. For CPU-bound work (matrix math, image processing), use multiprocessing instead.' },
+    { id:'q3', type:'mcq', question:'In Jupyter/Colab notebooks, how do you run an async function?',
+      options:[
+        {text:'await my_async_function() (Jupyter supports top-level await)',correct:true},
+        {text:'asyncio.run(my_async_function())',correct:false},
+        {text:'my_async_function().run()',correct:false},
+        {text:'async.execute(my_async_function)',correct:false},
+      ],
+      explanation:'Jupyter notebooks have a running event loop, so you can use await directly. asyncio.run() would raise an error in Jupyter.' },
+    { id:'q4', type:'truefalse', question:'An async function defined with "async def" can be called like a regular function.',
+      correctAnswer:false,
+      explanation:'Calling an async function returns a coroutine object, not the result. You must await it or pass it to asyncio.run() / asyncio.gather().' },
+    { id:'q5', type:'mcq', question:'What is the main benefit of using anthropic.AsyncAnthropic() instead of anthropic.Anthropic()?',
+      options:[
+        {text:'You can make multiple API calls concurrently without blocking',correct:true},
+        {text:'It uses a faster model',correct:false},
+        {text:'It costs fewer tokens',correct:false},
+        {text:'It automatically retries failed calls',correct:false},
+      ],
+      explanation:'The async client allows you to gather multiple API calls so they run in parallel, dramatically reducing total wait time.' },
+  ]
+};
+</script>
+</body>
+</html>

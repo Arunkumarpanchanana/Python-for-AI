@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Web Scraping for AI Data — Python for AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/main.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/session.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/quiz.css"/>
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="session-page-wrapper">
+  <aside id="session-sidebar"></aside>
+  <main>
+    <header class="session-header">
+      <div class="session-breadcrumb"><a href="/Python-for-AI/">Home</a><span class="sep">›</span><a href="/Python-for-AI/sections/intermediate.html">Intermediate</a><span class="sep">›</span><span>Session 15</span></div>
+      <h1 class="session-title">Web Scraping for AI Data</h1>
+      <p class="session-tagline">Use requests and BeautifulSoup to harvest real-world datasets from the web — then feed them into AI models.</p>
+      <div class="session-meta">
+        <span><i class="fas fa-clock"></i> 30 min</span>
+        <span><span class="badge badge-intermediate"><i class="fas fa-laptop-code"></i> Intermediate</span></span>
+        <span><i class="fas fa-flask"></i> Hands-on Lab</span>
+        <span><i class="fas fa-check-circle"></i> 5 Quiz Questions</span>
+      </div>
+    </header>
+    <div class="tab-nav">
+      <button class="tab-btn active" data-tab="learn"><i class="fas fa-book-open"></i> Learn</button>
+      <button class="tab-btn" data-tab="lab"><i class="fas fa-flask"></i> Lab</button>
+      <button class="tab-btn" data-tab="quiz"><i class="fas fa-check-circle"></i> Quiz</button>
+    </div>
+
+    <div class="tab-panel learn-content" data-panel="learn">
+      <h2>Web Scraping for AI Training Data</h2>
+      <p>AI models are only as good as their training data. When public datasets don't exist, you collect your own. Web scraping lets you turn any website into a structured dataset. The tool of choice is <strong>BeautifulSoup</strong> for parsing HTML and <strong>requests</strong> for fetching pages.</p>
+      <div class="warning-box"><i class="fas fa-exclamation-triangle"></i><div><strong>Ethics first:</strong> Always check a site's <code>robots.txt</code> before scraping. Respect rate limits. Never scrape login-protected content or personal data without permission. Many sites prohibit scraping in their terms of service.</div></div>
+
+      <h2>Fetching and Parsing HTML</h2>
+      <pre><code class="language-python">pip install requests beautifulsoup4 lxml</code></pre>
+      <pre><code class="language-python">import requests
+from bs4 import BeautifulSoup
+
+url = "https://quotes.toscrape.com"
+resp = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
+soup = BeautifulSoup(resp.text, "lxml")
+
+# Find elements
+print(soup.title.text)                   # page title
+quotes = soup.find_all("div", class_="quote")
+print(f"Found {len(quotes)} quotes")</code></pre>
+
+      <h2>Extracting Structured Data</h2>
+      <pre><code class="language-python">data = []
+for q in quotes:
+    text   = q.find("span", class_="text").text.strip()
+    author = q.find("small", class_="author").text.strip()
+    tags   = [t.text for t in q.find_all("a", class_="tag")]
+    data.append({"text": text, "author": author, "tags": tags})
+
+for item in data[:3]:
+    print(item)</code></pre>
+
+      <h2>Following Pagination</h2>
+      <pre><code class="language-python">import time
+
+all_quotes = []
+base_url = "https://quotes.toscrape.com/page/{}"
+
+for page in range(1, 6):  # pages 1-5
+    resp = requests.get(base_url.format(page))
+    soup = BeautifulSoup(resp.text, "lxml")
+    quotes = soup.find_all("div", class_="quote")
+    if not quotes: break
+    for q in quotes:
+        all_quotes.append({
+            "text": q.find("span", class_="text").text.strip(),
+            "author": q.find("small", class_="author").text.strip()
+        })
+    time.sleep(1)  # be polite -- 1 second between requests
+    print(f"Page {page}: {len(all_quotes)} total")</code></pre>
+
+      <h2>Saving to Pandas for AI Use</h2>
+      <pre><code class="language-python">import pandas as pd
+
+df = pd.DataFrame(all_quotes)
+print(df.head())
+df.to_csv("quotes_dataset.csv", index=False)
+print(f"Saved {len(df)} rows")
+
+# Now you can use this as training data or context for an LLM
+for _, row in df.iterrows():
+    prompt = f'Author: {row["author"]}\nQuote: {row["text"]}'
+    # send to AI for analysis, classification, etc.</code></pre>
+      <div class="tip-box"><i class="fas fa-star"></i><div><strong>CSS selectors tip:</strong> Use <code>soup.select("div.quote span.text")</code> for CSS-selector syntax. Open DevTools in your browser (F12), right-click any element, and "Copy selector" to get the exact selector.</div></div>
+
+    </div>
+
+    <div class="tab-panel" data-panel="lab" style="display:none">
+      <div class="lab-section">
+        <div class="lab-header">
+          <h2><i class="fas fa-flask"></i> Lab: Build a Quotes Dataset</h2>
+          <p>Scrape quotes.toscrape.com, save the data, and use AI to analyse authors and themes.</p>
+        </div>
+        <div class="lab-steps">
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">1</span><h3>Install and scrape page 1</h3></div>
+            <div class="lab-step-body">
+              <pre><code class="language-python">!pip install beautifulsoup4 lxml -q
+import requests
+from bs4 import BeautifulSoup
+
+resp = requests.get("https://quotes.toscrape.com")
+soup = BeautifulSoup(resp.text, "lxml")
+quotes = soup.find_all("div", class_="quote")
+print(f"Found {len(quotes)} quotes on page 1")
+print(quotes[0].find("span", class_="text").text)</code></pre>
+            </div>
+          </div>
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">2</span><h3>Scrape 5 pages with pagination</h3></div>
+            <div class="lab-step-body">
+              <pre><code class="language-python">import time, pandas as pd
+
+all_quotes = []
+for page in range(1, 6):
+    resp = requests.get(f"https://quotes.toscrape.com/page/{page}")
+    soup = BeautifulSoup(resp.text, "lxml")
+    for q in soup.find_all("div", class_="quote"):
+        all_quotes.append({
+            "quote": q.find("span", class_="text").text.strip('\u201c\u201d'),
+            "author": q.find("small", class_="author").text,
+            "tags": ", ".join(t.text for t in q.find_all("a", class_="tag"))
+        })
+    time.sleep(0.5)
+
+df = pd.DataFrame(all_quotes)
+print(df.shape)
+df.head()</code></pre>
+            </div>
+          </div>
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">3</span><h3>Analyse with pandas</h3></div>
+            <div class="lab-step-body">
+              <pre><code class="language-python">print("Top authors:")
+print(df["author"].value_counts().head(10))
+df.to_csv("quotes.csv", index=False)
+print("Saved to quotes.csv")</code></pre>
+            </div>
+          </div>
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">4</span><h3>Feed quotes to an AI</h3></div>
+            <div class="lab-step-body">
+              <pre><code class="language-python">import anthropic, os
+client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY",""))
+
+# Pick 5 quotes and ask AI to identify themes
+sample = df.sample(5)["quote"].tolist()
+quote_block = "\n".join(f"- {q}" for q in sample)
+
+msg = client.messages.create(
+    model="claude-opus-4-5", max_tokens=300,
+    messages=[{"role":"user","content":f"Identify the 3 main themes across these quotes:\n{quote_block}"}]
+)
+print(msg.content[0].text)</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="tab-panel" data-panel="quiz" style="display:none">
+      <div id="quiz-container"></div>
+    </div>
+
+    <div class="session-nav-buttons">
+      <a href="/Python-for-AI/sessions/intermediate/14-async-python.html" class="session-nav-btn prev" id="prev-session">
+        <span class="nav-label">Previous</span>
+        <span class="nav-title">← Async Python & Concurrency</span>
+      </a>
+      <a href="/Python-for-AI/sessions/intermediate/16-regex-text.html" class="session-nav-btn next" id="next-session">
+        <span class="nav-label">Next</span>
+        <span class="nav-title">Regex & Text Processing for AI →</span>
+      </a>
+    </div>
+  </main>
+</div>
+<div id="footer-placeholder"></div>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+<script src="/Python-for-AI/assets/js/progress.js"></script>
+<script src="/Python-for-AI/assets/js/quiz.js"></script>
+<script src="/Python-for-AI/assets/js/lab.js"></script>
+<script src="/Python-for-AI/assets/js/session.js"></script>
+<script src="/Python-for-AI/assets/js/main.js"></script>
+<script>
+window.SESSION_META = {
+  id: 'py-15',
+  title: 'Web Scraping for AI Data',
+  section: 'intermediate',
+  quizData: [
+    { id:'q1', type:'mcq', question:'Which Python library is used to parse HTML and extract elements by tag or CSS class?',
+      options:[
+        {text:'BeautifulSoup (bs4)',correct:true},
+        {text:'requests',correct:false},
+        {text:'pandas',correct:false},
+        {text:'html.parser only',correct:false},
+      ],
+      explanation:'BeautifulSoup parses HTML/XML and provides methods like find(), find_all(), and select() to locate elements.' },
+    { id:'q2', type:'mcq', question:'What does soup.find_all("div", class_="quote") return?',
+      options:[
+        {text:'A list of all <div> elements with class="quote"',correct:true},
+        {text:'The first div with class="quote"',correct:false},
+        {text:'The text content of all quote divs',correct:false},
+        {text:'A CSS selector string',correct:false},
+      ],
+      explanation:'find_all() returns a list of all matching Tag objects. Use find() for just the first match.' },
+    { id:'q3', type:'truefalse', question:'It is always legal to scrape any public website.',
+      correctAnswer:false,
+      explanation:"Scraping may violate a site's Terms of Service even if pages are publicly accessible. Always check robots.txt and terms before scraping." },
+    { id:'q4', type:'mcq', question:'Why should you add time.sleep(1) between page requests when scraping?',
+      options:[
+        {text:'To avoid overloading the server and getting your IP blocked (rate limiting)',correct:true},
+        {text:'To make your code run faster',correct:false},
+        {text:'To parse HTML more accurately',correct:false},
+        {text:'To avoid Python memory errors',correct:false},
+      ],
+      explanation:'Scraping too fast can look like a DDoS attack to a server. Polite scrapers add delays between requests.' },
+    { id:'q5', type:'mcq', question:'What header should you always set when making scraping requests?',
+      options:[
+        {text:'User-Agent — to identify your client and avoid being blocked as a bot',correct:true},
+        {text:'Content-Type: text/html',correct:false},
+        {text:'Accept: application/json',correct:false},
+        {text:'Authorization: Bearer',correct:false},
+      ],
+      explanation:"Many sites block requests with no User-Agent or with Python's default urllib agent. Set a realistic browser User-Agent string." },
+  ]
+};
+</script>
+</body>
+</html>

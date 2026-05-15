@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Modules, Packages & the Ecosystem - Python for AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/main.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/session.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/quiz.css"/>
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="session-page-wrapper">
+  <aside id="session-sidebar"></aside>
+  <main>
+    <header class="session-header">
+      <div class="session-breadcrumb"><a href="/Python-for-AI/">Home</a><span class="sep">&#8250;</span><a href="/Python-for-AI/sections/beginner.html">Beginner</a><span class="sep">&#8250;</span><span>Session 08</span></div>
+      <h1 class="session-title">Modules, Packages & the Ecosystem</h1>
+      <p class="session-tagline">Leverage Python's massive ecosystem — the packages powering every AI project.</p>
+      <div class="session-meta">
+        <span><i class="fas fa-clock"></i> 25 min</span>
+        <span><span class="badge badge-beginner"><i class="fas fa-seedling"></i> Beginner</span></span>
+        <span><i class="fas fa-flask"></i> Hands-on Lab</span>
+      </div>
+    </header>
+    <div class="tab-nav">
+      <button class="tab-btn active" data-tab="learn"><i class="fas fa-book-open"></i> Learn</button>
+      <button class="tab-btn" data-tab="lab"><i class="fas fa-flask"></i> Lab</button>
+      <button class="tab-btn" data-tab="quiz"><i class="fas fa-check-circle"></i> Quiz</button>
+    </div>
+    <div class="tab-panel learn-content" data-panel="learn"><h2>Importing Modules</h2><pre><code class="language-python">import os, math
+from datetime import datetime
+from collections import Counter, defaultdict
+import random as rnd
+
+print(os.getcwd())
+print(math.sqrt(144))      # 12.0
+print(datetime.now().year)
+print(rnd.randint(1,100))</code></pre><h2>Standard Library Highlights</h2><div class="table-wrap"><table class="data-table"><thead><tr><th>Module</th><th>Key AI Use</th></tr></thead><tbody><tr><td>os</td><td>File paths, env vars for API keys</td></tr><tr><td>datetime</td><td>Timestamps, logging</td></tr><tr><td>random</td><td>Sampling, data augmentation</td></tr><tr><td>re</td><td>Text cleaning, parsing</td></tr><tr><td>collections</td><td>Counter for token frequency</td></tr><tr><td>json</td><td>API data, config files</td></tr></tbody></table></div><h2>pip and requirements.txt</h2><pre><code class="language-python"># pip install openai anthropic pandas numpy
+# pip freeze &gt; requirements.txt
+# pip install -r requirements.txt</code></pre><h2>if __name__ == '__main__'</h2><pre><code class="language-python">def greet(name):
+    return f"Hello, {name}!"
+
+if __name__ == "__main__":
+    print(greet("World"))
+    # Only runs when executed directly, NOT imported</code></pre><div class="tip-box"><i class="fas fa-lightbulb"></i><div><strong>Always use this pattern</strong> for scripts you might also import as a module.</div></div></div>
+    <div class="tab-panel" data-panel="lab" style="display:none"><div class="lab-section"><div class="lab-header"><h2><i class="fas fa-flask"></i> Lab: Daily Motivation Tool</h2><p>Use os, datetime, random, and Counter to build a useful script.</p></div><div class="lab-steps"><div class="lab-step"><div class="lab-step-header"><span class="lab-step-num">1</span><h3>Build the tool</h3></div><div class="lab-step-body"><pre><code class="language-python">import random, os
+from datetime import datetime
+from collections import Counter
+
+quotes = [
+    "First solve the problem, then write the code.",
+    "Code is like humor: when you explain it, its bad.",
+    "Make it work, make it right, make it fast.",
+]
+random.seed(datetime.now().strftime("%Y-%m-%d"))
+user = os.environ.get("USER","Learner")
+print(f"Good morning, {user}!")
+print(f"Quote: {random.choice(quotes)}")</code></pre></div></div><div class="lab-step"><div class="lab-step-header"><span class="lab-step-num">2</span><h3>Word frequency</h3></div><div class="lab-step-body"><pre><code class="language-python">all_words = " ".join(quotes).lower().split()
+freq = Counter(all_words)
+for word, count in freq.most_common(5):
+    print(f"  {word}: {count}")</code></pre></div></div></div></div></div>
+    <div class="tab-panel" data-panel="quiz" style="display:none"><div id="quiz-container"></div></div>
+    <div class="session-nav-buttons"><a href="/Python-for-AI/sessions/beginner/07-oop-basics.html" class="session-nav-btn prev" id="prev-session"><span class="nav-label">Previous</span><span class="nav-title">&larr; Object-Oriented Programming</span></a><a href="/Python-for-AI/sessions/intermediate/09-numpy.html" class="session-nav-btn next" id="next-session"><span class="nav-label">Next</span><span class="nav-title">NumPy: Arrays & Math &rarr;</span></a></div>
+  </main>
+</div>
+<div id="footer-placeholder"></div>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+<script src="/Python-for-AI/assets/js/progress.js"></script>
+<script src="/Python-for-AI/assets/js/quiz.js"></script>
+<script src="/Python-for-AI/assets/js/lab.js"></script>
+<script src="/Python-for-AI/assets/js/session.js"></script>
+<script src="/Python-for-AI/assets/js/main.js"></script>
+<script>
+window.SESSION_META = {id:'py-08',title:'Modules, Packages & the Ecosystem',section:'beginner',quizData:[{id:'q1',type:"mcq",question:'How to import only Counter from collections?',options:[{text:'from collections import Counter',correct:true},{text:'import collections.Counter',correct:false},{text:'import Counter from collections',correct:false},{text:'include Counter',correct:false}],explanation:'from module import Name is the correct syntax.'},{id:'q2',type:"mcq",question:'What does pip freeze do?',options:[{text:'Lists installed packages with versions',correct:true},{text:'Stops Python',correct:false},{text:'Freezes a variable',correct:false},{text:'Optimises loading',correct:false}],explanation:'pip freeze outputs all packages in requirements.txt format.'},{id:'q3',type:"mcq",question:"What does random.choice(['a','b','c']) return?",options:[{text:'One random element',correct:true},{text:'Shuffled list',correct:false},{text:'Random index',correct:false},{text:'Removed element',correct:false}],explanation:'random.choice() picks and returns one random element.'},{id:'q4',type:"mcq",question:"What does os.path.join('data','file.csv') do?",options:[{text:'Builds an OS-appropriate path',correct:true},{text:'Merges files',correct:false},{text:'Downloads file',correct:false},{text:'Checks existence',correct:false}],explanation:'os.path.join() builds paths with the correct separator for the OS.'},{id:'q5',type:"mcq",question:"When does if __name__ == '__main__': run?",options:[{text:'Only when run directly, not imported',correct:true},{text:'Always',correct:false},{text:'Only when imported',correct:false},{text:'When a function is called',correct:false}],explanation:"__name__ is '__main__' only when executed directly."}]};
+</script>
+</body></html>

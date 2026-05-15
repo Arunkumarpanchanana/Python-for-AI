@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Build a Simple RAG System — Python for AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/main.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/session.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/quiz.css"/>
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="session-page-wrapper">
+  <aside id="session-sidebar"></aside>
+  <main>
+    <header class="session-header">
+      <div class="session-breadcrumb"><a href="/Python-for-AI/">Home</a><span class="sep">›</span><a href="/Python-for-AI/sections/advanced.html">Advanced</a><span class="sep">›</span><span>Session 18</span></div>
+      <h1 class="session-title">Build a Simple RAG System</h1>
+      <p class="session-tagline">Implement a complete Retrieval-Augmented Generation pipeline — chunk, embed, retrieve, and generate answers from your own documents.</p>
+      <div class="session-meta">
+        <span><i class="fas fa-clock"></i> 45 min</span>
+        <span><span class="badge badge-advanced"><i class="fas fa-rocket"></i> Advanced</span></span>
+        <span><i class="fas fa-flask"></i> Hands-on Lab</span>
+        <span><i class="fas fa-check-circle"></i> 5 Quiz Questions</span>
+      </div>
+    </header>
+    <div class="tab-nav">
+      <button class="tab-btn active" data-tab="learn"><i class="fas fa-book-open"></i> Learn</button>
+      <button class="tab-btn" data-tab="lab"><i class="fas fa-flask"></i> Lab</button>
+      <button class="tab-btn" data-tab="quiz"><i class="fas fa-check-circle"></i> Quiz</button>
+    </div>
+
+    <div class="tab-panel learn-content" data-panel="learn">
+      <h2>What Is RAG and Why Does It Matter?</h2>
+      <p>Retrieval-Augmented Generation (RAG) solves one of the biggest LLM limitations: models only know what was in their training data. RAG lets you give any LLM access to your own documents — PDFs, wikis, databases — at query time, without fine-tuning.</p>
+      <p>The pipeline: <strong>Chunk</strong> documents → <strong>Embed</strong> them into vectors → <strong>Store</strong> in a vector database → At query time: <strong>Embed</strong> the question → <strong>Retrieve</strong> similar chunks → <strong>Generate</strong> answer with the retrieved context.</p>
+      <div class="callout callout-info"><i class="fas fa-lightbulb"></i><div><strong>Why it works:</strong> Embedding converts text into a list of numbers where semantically similar texts have similar numbers (close in vector space). Searching by similarity finds relevant chunks even if the exact words differ.</div></div>
+
+      <h2>Step 1: Prepare Documents</h2>
+      <pre><code class="language-python">def load_and_chunk(filepath: str, chunk_size=500, overlap=50) -> list[dict]:
+    with open(filepath) as f:
+        text = f.read()
+    chunks = []
+    start = 0
+    while start < len(text):
+        end = start + chunk_size
+        chunks.append({
+            "id": len(chunks),
+            "text": text[start:end],
+            "source": filepath
+        })
+        start += chunk_size - overlap
+    return chunks
+
+chunks = load_and_chunk("my_document.txt")
+print(f"Created {len(chunks)} chunks")</code></pre>
+
+      <h2>Step 2: Embed Chunks</h2>
+      <pre><code class="language-python">pip install openai numpy</code></pre>
+      <pre><code class="language-python">from openai import OpenAI
+import numpy as np
+
+client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+
+def embed(texts: list[str]) -> np.ndarray:
+    """Embed a list of texts, returns (n, 1536) array."""
+    response = client.embeddings.create(
+        model="text-embedding-3-small",
+        input=texts
+    )
+    vectors = [r.embedding for r in response.data]
+    return np.array(vectors)
+
+# Embed all chunks
+texts = [c["text"] for c in chunks]
+vectors = embed(texts)
+print("Embedding shape:", vectors.shape)  # (n_chunks, 1536)</code></pre>
+
+      <h2>Step 3: Retrieve Relevant Chunks</h2>
+      <pre><code class="language-python">def cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
+    return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
+
+def retrieve(query: str, vectors: np.ndarray, chunks: list, top_k=3) -> list[dict]:
+    query_vec = embed([query])[0]
+    scores = [cosine_similarity(query_vec, v) for v in vectors]
+    top_indices = np.argsort(scores)[::-1][:top_k]
+    return [chunks[i] for i in top_indices]
+
+results = retrieve("What is the main topic?", vectors, chunks)
+for r in results:
+    print(f"Score chunk {r['id']}: {r['text'][:80]}...")</code></pre>
+
+      <h2>Step 4: Generate Answer with Context</h2>
+      <pre><code class="language-python">from anthropic import Anthropic
+ac = Anthropic()
+
+def rag_answer(question: str, vectors, chunks) -> str:
+    relevant = retrieve(question, vectors, chunks, top_k=3)
+    context = "\n\n---\n\n".join(r["text"] for r in relevant)
+    prompt = f"""Answer the question using only the context below.
+If the answer is not in the context, say "I don't know."
+
+Context:
+{context}
+
+Question: {question}"""
+    msg = ac.messages.create(
+        model="claude-opus-4-5", max_tokens=512,
+        messages=[{"role":"user","content":prompt}]
+    )
+    return msg.content[0].text
+
+answer = rag_answer("What is the return policy?", vectors, chunks)
+print(answer)</code></pre>
+      <div class="tip-box"><i class="fas fa-star"></i><div><strong>Production tip:</strong> For larger document sets, use a proper vector database like Chroma, Pinecone, or Weaviate instead of NumPy arrays. They handle indexing, persistence, and fast approximate nearest-neighbour search at scale.</div></div>
+
+    </div>
+
+    <div class="tab-panel" data-panel="lab" style="display:none">
+      <div class="lab-section">
+        <div class="lab-header">
+          <h2><i class="fas fa-flask"></i> Lab: Build a Document Q&A System</h2>
+          <p>Build a RAG pipeline from scratch using Python Wikipedia content, embeddings, and Claude.</p>
+        </div>
+        <div class="lab-steps">
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">1</span><h3>Install dependencies</h3></div>
+            <div class="lab-step-body">
+              <pre><code class="language-python">!pip install anthropic openai numpy -q
+from google.colab import userdata
+from openai import OpenAI
+from anthropic import Anthropic
+import numpy as np
+
+oai = OpenAI(api_key=userdata.get("OPENAI_API_KEY"))
+ac  = Anthropic(api_key=userdata.get("ANTHROPIC_API_KEY"))
+print("Clients ready!")</code></pre>
+            </div>
+          </div>
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">2</span><h3>Chunk a Wikipedia article</h3></div>
+            <div class="lab-step-body">
+              <pre><code class="language-python">import requests, re
+
+# Fetch Python Wikipedia article
+url = "https://en.wikipedia.org/api/rest_v1/page/summary/Python_(programming_language)"
+data = requests.get(url).json()
+text = data["extract"]
+
+# Chunk it
+chunks = [text[i:i+400] for i in range(0, len(text), 300)]
+print(f"{len(chunks)} chunks from Wikipedia")
+print("Preview:", chunks[0][:100])</code></pre>
+            </div>
+          </div>
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">3</span><h3>Embed and build the index</h3></div>
+            <div class="lab-step-body">
+              <pre><code class="language-python">def embed(texts):
+    r = oai.embeddings.create(model="text-embedding-3-small", input=texts)
+    return np.array([e.embedding for e in r.data])
+
+vectors = embed(chunks)
+print("Index shape:", vectors.shape)</code></pre>
+            </div>
+          </div>
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">4</span><h3>Ask questions</h3></div>
+            <div class="lab-step-body">
+              <pre><code class="language-python">def ask(question):
+    q_vec = embed([question])[0]
+    scores = vectors @ q_vec  # dot product for similarity
+    top3 = np.argsort(scores)[::-1][:3]
+    context = " ".join(chunks[i] for i in top3)
+    msg = ac.messages.create(
+        model="claude-opus-4-5", max_tokens=300,
+        messages=[{"role":"user","content":f"Context: {context}\n\nQ: {question}"}]
+    )
+    return msg.content[0].text
+
+print(ask("When was Python created?"))
+print()
+print(ask("What is Python used for?"))</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="tab-panel" data-panel="quiz" style="display:none">
+      <div id="quiz-container"></div>
+    </div>
+
+    <div class="session-nav-buttons">
+      <a href="/Python-for-AI/sessions/advanced/17-build-chatbot.html" class="session-nav-btn prev" id="prev-session">
+        <span class="nav-label">Previous</span>
+        <span class="nav-title">← Build a CLI Chatbot</span>
+      </a>
+      <a href="/Python-for-AI/sessions/advanced/19-flask-api.html" class="session-nav-btn next" id="next-session">
+        <span class="nav-label">Next</span>
+        <span class="nav-title">Wrap AI in a Flask API →</span>
+      </a>
+    </div>
+  </main>
+</div>
+<div id="footer-placeholder"></div>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+<script src="/Python-for-AI/assets/js/progress.js"></script>
+<script src="/Python-for-AI/assets/js/quiz.js"></script>
+<script src="/Python-for-AI/assets/js/lab.js"></script>
+<script src="/Python-for-AI/assets/js/session.js"></script>
+<script src="/Python-for-AI/assets/js/main.js"></script>
+<script>
+window.SESSION_META = {
+  id: 'py-18',
+  title: 'Build a Simple RAG System',
+  section: 'advanced',
+  quizData: [
+    { id:'q1', type:'mcq', question:'What problem does RAG solve that fine-tuning cannot easily address?',
+      options:[
+        {text:'Giving LLMs access to up-to-date or private documents at query time',correct:true},
+        {text:'Making the model respond faster',correct:false},
+        {text:'Reducing hallucinations about public knowledge',correct:false},
+        {text:'Allowing the model to execute code',correct:false},
+      ],
+      explanation:'RAG injects relevant document chunks at query time. Fine-tuning bakes knowledge into weights — it cannot be updated without retraining.' },
+    { id:'q2', type:'mcq', question:'What does "embedding" text produce?',
+      options:[
+        {text:'A dense vector of numbers representing the semantic meaning of the text',correct:true},
+        {text:'A compressed version of the text that saves storage space',correct:false},
+        {text:'A tokenised list of words',correct:false},
+        {text:'An encrypted form of the text for security',correct:false},
+      ],
+      explanation:'Embeddings are high-dimensional vectors (e.g. 1536 floats for ada-002). Semantically similar texts have similar vectors (high cosine similarity).' },
+    { id:'q3', type:'mcq', question:'What metric is used to compare a query embedding to chunk embeddings?',
+      options:[
+        {text:'Cosine similarity',correct:true},
+        {text:'Euclidean distance only',correct:false},
+        {text:'Jaccard similarity',correct:false},
+        {text:'Edit distance',correct:false},
+      ],
+      explanation:'Cosine similarity measures the angle between two vectors (ignoring magnitude). Values range from -1 to 1; higher means more similar.' },
+    { id:'q4', type:'truefalse', question:'In a basic RAG system, all document chunks must be embedded again each time a new question is asked.',
+      correctAnswer:false,
+      explanation:'Document chunks are embedded once and stored. Only the query is embedded at question time, then compared to the pre-built index.' },
+    { id:'q5', type:'mcq', question:'Why is chunking with overlap (e.g., 50 characters) useful?',
+      options:[
+        {text:'It prevents key sentences split at a chunk boundary from losing their context',correct:true},
+        {text:'It reduces the number of API calls needed',correct:false},
+        {text:'It improves embedding accuracy',correct:false},
+        {text:'It reduces storage costs',correct:false},
+      ],
+      explanation:'Overlap ensures that a sentence split at the end of one chunk also appears at the start of the next, preserving context at boundaries.' },
+  ]
+};
+</script>
+</body>
+</html>

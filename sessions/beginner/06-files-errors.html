@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>File Handling & Error Handling - Python for AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/main.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/session.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/quiz.css"/>
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="session-page-wrapper">
+  <aside id="session-sidebar"></aside>
+  <main>
+    <header class="session-header">
+      <div class="session-breadcrumb"><a href="/Python-for-AI/">Home</a><span class="sep">&#8250;</span><a href="/Python-for-AI/sections/beginner.html">Beginner</a><span class="sep">&#8250;</span><span>Session 06</span></div>
+      <h1 class="session-title">File Handling & Error Handling</h1>
+      <p class="session-tagline">Read, write, and process files — essential for loading datasets and saving AI results.</p>
+      <div class="session-meta">
+        <span><i class="fas fa-clock"></i> 30 min</span>
+        <span><span class="badge badge-beginner"><i class="fas fa-seedling"></i> Beginner</span></span>
+        <span><i class="fas fa-flask"></i> Hands-on Lab</span>
+      </div>
+    </header>
+    <div class="tab-nav">
+      <button class="tab-btn active" data-tab="learn"><i class="fas fa-book-open"></i> Learn</button>
+      <button class="tab-btn" data-tab="lab"><i class="fas fa-flask"></i> Lab</button>
+      <button class="tab-btn" data-tab="quiz"><i class="fas fa-check-circle"></i> Quiz</button>
+    </div>
+    <div class="tab-panel learn-content" data-panel="learn"><h2>Reading Files</h2><pre><code class="language-python">with open("data.txt", "r") as f:
+    content = f.read()      # whole file
+
+with open("data.txt", "r") as f:
+    lines = f.readlines()   # list of lines
+
+with open("data.txt", "r") as f:
+    for line in f:          # memory-efficient
+        print(line.strip())</code></pre><h2>Writing Files</h2><pre><code class="language-python">with open("out.txt", "w") as f:   # creates/overwrites
+    f.write("Hello!\n")
+
+with open("log.txt", "a") as f:   # appends
+    f.write("New entry\n")</code></pre><h2>JSON</h2><pre><code class="language-python">import json
+data = {"model":"claude","tokens":1024}
+json_str = json.dumps(data, indent=2)
+parsed  = json.loads(json_str)
+print(parsed["model"])
+
+with open("config.json","w") as f: json.dump(data, f, indent=2)
+with open("config.json","r") as f: config = json.load(f)</code></pre><h2>Error Handling</h2><pre><code class="language-python">try:
+    value = int("not a number")
+except ValueError as e:
+    print(f"Error: {e}")
+except FileNotFoundError:
+    print("File missing")
+finally:
+    print("Always runs")
+
+def get_score(n):
+    if not 0 &lt;= n &lt;= 100:
+        raise ValueError(f"Score {n} out of range")
+    return n</code></pre></div>
+    <div class="tab-panel" data-panel="lab" style="display:none"><div class="lab-section"><div class="lab-header"><h2><i class="fas fa-flask"></i> Lab: CSV to JSON</h2><p>Read sales CSV, aggregate, save as JSON.</p></div><div class="lab-steps"><div class="lab-step"><div class="lab-step-header"><span class="lab-step-num">1</span><h3>Create CSV</h3></div><div class="lab-step-body"><pre><code class="language-python">import csv, json
+rows=[["product","amount"],["Widget","150"],["Gadget","200"],["Widget","75"]]
+with open("sales.csv","w",newline="") as f: csv.writer(f).writerows(rows)</code></pre></div></div><div class="lab-step"><div class="lab-step-header"><span class="lab-step-num">2</span><h3>Aggregate</h3></div><div class="lab-step-body"><pre><code class="language-python">totals = {}
+with open("sales.csv") as f:
+    for row in csv.DictReader(f):
+        p = row["product"]
+        totals[p] = totals.get(p,0) + int(row["amount"])
+print(totals)</code></pre></div></div><div class="lab-step"><div class="lab-step-header"><span class="lab-step-num">3</span><h3>Save JSON</h3></div><div class="lab-step-body"><pre><code class="language-python">try:
+    with open("summary.json","w") as f: json.dump(totals,f,indent=2)
+    print("Saved!")
+except IOError as e: print(f"Error: {e}")</code></pre></div></div></div></div></div>
+    <div class="tab-panel" data-panel="quiz" style="display:none"><div id="quiz-container"></div></div>
+    <div class="session-nav-buttons"><a href="/Python-for-AI/sessions/beginner/05-control-flow.html" class="session-nav-btn prev" id="prev-session"><span class="nav-label">Previous</span><span class="nav-title">&larr; Control Flow & Loops</span></a><a href="/Python-for-AI/sessions/beginner/07-oop-basics.html" class="session-nav-btn next" id="next-session"><span class="nav-label">Next</span><span class="nav-title">Object-Oriented Programming &rarr;</span></a></div>
+  </main>
+</div>
+<div id="footer-placeholder"></div>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+<script src="/Python-for-AI/assets/js/progress.js"></script>
+<script src="/Python-for-AI/assets/js/quiz.js"></script>
+<script src="/Python-for-AI/assets/js/lab.js"></script>
+<script src="/Python-for-AI/assets/js/session.js"></script>
+<script src="/Python-for-AI/assets/js/main.js"></script>
+<script>
+window.SESSION_META = {id:'py-06',title:'File Handling & Error Handling',section:'beginner',quizData:[{id:'q1',type:"mcq",question:"Why use 'with open(...)'?",options:[{text:'Auto-closes the file',correct:true},{text:'Faster I/O',correct:false},{text:'Required for writing',correct:false},{text:'Prevents all errors',correct:false}],explanation:'The with statement ensures the file is closed automatically.'},{id:'q2',type:"mcq",question:'Mode to append without overwriting?',options:[{text:"'a'",correct:true},{text:"'w'",correct:false},{text:"'r'",correct:false},{text:"'+'",correct:false}],explanation:"'a' appends; 'w' overwrites; 'r' reads only."},{id:'q3',type:"mcq",question:'What does json.loads() do?',options:[{text:'Parse JSON string to Python object',correct:true},{text:'Save to JSON file',correct:false},{text:'Load JSON file',correct:false},{text:'Convert to JSON string',correct:false}],explanation:'loads = load string. load = load file. dumps = dump to string.'},{id:'q4',type:"mcq",question:'Exception for a missing file?',options:[{text:'FileNotFoundError',correct:true},{text:'IOError',correct:false},{text:'MissingError',correct:false},{text:'OSError',correct:false}],explanation:'FileNotFoundError is the specific exception for missing paths.'},{id:'q5',type:"mcq",question:'What does finally do?',options:[{text:'Always runs regardless of exceptions',correct:true},{text:'Only on error',correct:false},{text:'Only on success',correct:false},{text:'Catches all exceptions',correct:false}],explanation:'finally always executes — ideal for cleanup.'}]};
+</script>
+</body></html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Variables & Data Types - Python for AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/main.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/session.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/quiz.css"/>
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="session-page-wrapper">
+  <aside id="session-sidebar"></aside>
+  <main>
+    <header class="session-header">
+      <div class="session-breadcrumb"><a href="/Python-for-AI/">Home</a><span class="sep">&#8250;</span><a href="/Python-for-AI/sections/beginner.html">Beginner</a><span class="sep">&#8250;</span><span>Session 02</span></div>
+      <h1 class="session-title">Variables & Data Types</h1>
+      <p class="session-tagline">Master Python's core data types — the building blocks of every AI script.</p>
+      <div class="session-meta">
+        <span><i class="fas fa-clock"></i> 25 min</span>
+        <span><span class="badge badge-beginner"><i class="fas fa-seedling"></i> Beginner</span></span>
+        <span><i class="fas fa-flask"></i> Hands-on Lab</span>
+      </div>
+    </header>
+    <div class="tab-nav">
+      <button class="tab-btn active" data-tab="learn"><i class="fas fa-book-open"></i> Learn</button>
+      <button class="tab-btn" data-tab="lab"><i class="fas fa-flask"></i> Lab</button>
+      <button class="tab-btn" data-tab="quiz"><i class="fas fa-check-circle"></i> Quiz</button>
+    </div>
+    <div class="tab-panel learn-content" data-panel="learn"><h2>Variables and Assignment</h2><p>Python is dynamically typed — no type declarations needed.</p><pre><code class="language-python">x = 42
+pi = 3.14159
+name = "Alice"
+active = True
+nothing = None</code></pre><div class="tip-box"><i class="fas fa-lightbulb"></i><div><strong>Convention:</strong> Use snake_case.</div></div><h2>Core Data Types</h2><div class="table-wrap"><table class="data-table"><thead><tr><th>Type</th><th>Example</th><th>AI Use</th></tr></thead><tbody><tr><td>int</td><td>42</td><td>Token counts, indices</td></tr><tr><td>float</td><td>3.14</td><td>Probabilities, temperatures</td></tr><tr><td>str</td><td>"hello"</td><td>Prompts, responses</td></tr><tr><td>bool</td><td>True</td><td>Flags, conditions</td></tr><tr><td>None</td><td>None</td><td>Missing values</td></tr></tbody></table></div><h2>Type Checking and Conversion</h2><pre><code class="language-python">print(type(42))        # &lt;class 'int'&gt;
+print(int("100"))      # 100
+print(float("3.14"))   # 3.14
+print(str(42))         # "42"
+print(bool(0))         # False
+print(bool("hello"))   # True</code></pre><h2>String Operations</h2><pre><code class="language-python">s = "  Hello, World!  "
+print(s.strip())           # "Hello, World!"
+print(s.lower())
+print(s.replace("o","0"))
+print(s.split(","))        # list
+
+name = "Alice"; score = 95.5
+print(f"Student: {name}, Score: {score:.1f}%")</code></pre><h2>Operators</h2><pre><code class="language-python">print(10 / 3)   # 3.333
+print(10 // 3)  # 3 floor
+print(10 % 3)   # 1 remainder
+print(2 ** 10)  # 1024
+print(5 &gt; 3)    # True
+print(True and False)  # False</code></pre></div>
+    <div class="tab-panel" data-panel="lab" style="display:none"><div class="lab-section"><div class="lab-header"><h2><i class="fas fa-flask"></i> Lab: Temperature Converter</h2><p>Build a type-aware converter using variables and f-strings.</p></div><div class="lab-steps"><div class="lab-step"><div class="lab-step-header"><span class="lab-step-num">1</span><h3>Celsius to Fahrenheit</h3></div><div class="lab-step-body"><pre><code class="language-python">celsius = 100.0
+fahrenheit = (celsius * 9/5) + 32
+print(f"{celsius}C = {fahrenheit}F")</code></pre></div></div><div class="lab-step"><div class="lab-step-header"><span class="lab-step-num">2</span><h3>Personal info card</h3></div><div class="lab-step-body"><pre><code class="language-python">name = "Your Name"; age = 25
+print(f"Name: {name} | Age: {age}")</code></pre></div></div><div class="lab-step"><div class="lab-step-header"><span class="lab-step-num">3</span><h3>Type inspector</h3></div><div class="lab-step-body"><pre><code class="language-python">for v in [42, 3.14, "hello", True, None]:
+    print(f"{str(v):<10} type={type(v).__name__}")</code></pre></div></div></div></div></div>
+    <div class="tab-panel" data-panel="quiz" style="display:none"><div id="quiz-container"></div></div>
+    <div class="session-nav-buttons"><a href="/Python-for-AI/sessions/beginner/01-why-python.html" class="session-nav-btn prev" id="prev-session"><span class="nav-label">Previous</span><span class="nav-title">&larr; Why Python for AI?</span></a><a href="/Python-for-AI/sessions/beginner/03-lists-dicts.html" class="session-nav-btn next" id="next-session"><span class="nav-label">Next</span><span class="nav-title">Lists, Tuples & Dictionaries &rarr;</span></a></div>
+  </main>
+</div>
+<div id="footer-placeholder"></div>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+<script src="/Python-for-AI/assets/js/progress.js"></script>
+<script src="/Python-for-AI/assets/js/quiz.js"></script>
+<script src="/Python-for-AI/assets/js/lab.js"></script>
+<script src="/Python-for-AI/assets/js/session.js"></script>
+<script src="/Python-for-AI/assets/js/main.js"></script>
+<script>
+window.SESSION_META = {id:'py-02',title:'Variables & Data Types',section:'beginner',quizData:[{id:'q1',type:"mcq",question:"What does type('hello') return?",options:[{text:'str',correct:true},{text:'string',correct:false},{text:'text',correct:false},{text:'<string>',correct:false}],explanation:'type() returns the class. For a string it returns str.'},{id:'q2',type:"mcq",question:'What is 10 // 3?',options:[{text:'3',correct:true},{text:'3.33',correct:false},{text:'1',correct:false},{text:'30',correct:false}],explanation:'// is floor division — divides and rounds down.'},{id:'q3',type:"mcq",question:'Which f-string is correct?',options:[{text:'f"Hi {name}"',correct:true},{text:'f"Hi $name"',correct:false},{text:'"Hi {name}"',correct:false},{text:'%(name)s',correct:false}],explanation:'f-strings use {variable} inside a string prefixed with f.'},{id:'q4',type:"truefalse",question:'In Python you must declare variable types before use.',correctAnswer:false,explanation:'Python is dynamically typed — just assign and Python infers the type.'},{id:'q5',type:"mcq",question:"What does bool('') return?",options:[{text:'False',correct:true},{text:'True',correct:false},{text:'None',correct:false},{text:'Error',correct:false}],explanation:'Empty strings are falsy in Python.'}]};
+</script>
+</body></html>

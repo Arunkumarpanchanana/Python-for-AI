@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Build AI Web Apps with Streamlit — Python for AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/main.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/session.css"/>
+  <link rel="stylesheet" href="/Python-for-AI/assets/css/quiz.css"/>
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="session-page-wrapper">
+  <aside id="session-sidebar"></aside>
+  <main>
+    <header class="session-header">
+      <div class="session-breadcrumb"><a href="/Python-for-AI/">Home</a><span class="sep">›</span><a href="/Python-for-AI/sections/advanced.html">Advanced</a><span class="sep">›</span><span>Session 20</span></div>
+      <h1 class="session-title">Build AI Web Apps with Streamlit</h1>
+      <p class="session-tagline">Build and deploy interactive AI web apps in pure Python — no HTML or CSS needed. From script to public URL in minutes.</p>
+      <div class="session-meta">
+        <span><i class="fas fa-clock"></i> 40 min</span>
+        <span><span class="badge badge-advanced"><i class="fas fa-rocket"></i> Advanced</span></span>
+        <span><i class="fas fa-flask"></i> Hands-on Lab</span>
+        <span><i class="fas fa-check-circle"></i> 5 Quiz Questions</span>
+      </div>
+    </header>
+    <div class="tab-nav">
+      <button class="tab-btn active" data-tab="learn"><i class="fas fa-book-open"></i> Learn</button>
+      <button class="tab-btn" data-tab="lab"><i class="fas fa-flask"></i> Lab</button>
+      <button class="tab-btn" data-tab="quiz"><i class="fas fa-check-circle"></i> Quiz</button>
+    </div>
+
+    <div class="tab-panel learn-content" data-panel="learn">
+      <h2>Why Streamlit?</h2>
+      <p>Streamlit lets you build interactive AI web apps in pure Python — no HTML, CSS, or JavaScript required. A 50-line Python script becomes a polished web interface. It is the fastest way to demo an AI prototype to stakeholders or ship an internal tool.</p>
+      <pre><code class="language-python">pip install streamlit anthropic</code></pre>
+
+      <h2>Your First Streamlit AI App</h2>
+      <pre><code class="language-python"># Save as app.py, then run: streamlit run app.py
+import streamlit as st
+from anthropic import Anthropic
+
+st.title("AI Text Tools")
+st.write("Powered by Claude")
+
+client = Anthropic(api_key=st.secrets["ANTHROPIC_API_KEY"])
+
+task = st.selectbox("Choose a task:", ["Summarise", "Translate", "Explain Like I'm 5"])
+text = st.text_area("Enter your text:", height=150)
+
+if st.button("Run") and text:
+    with st.spinner("Thinking..."):
+        prompt = f"{task} the following text:\n\n{text}"
+        msg = client.messages.create(
+            model="claude-opus-4-5", max_tokens=500,
+            messages=[{"role":"user","content":prompt}]
+        )
+        st.success("Done!")
+        st.write(msg.content[0].text)</code></pre>
+
+      <h2>Building a Chat Interface</h2>
+      <pre><code class="language-python">import streamlit as st
+from anthropic import Anthropic
+
+st.title("PythonBot")
+client = Anthropic(api_key=st.secrets["ANTHROPIC_API_KEY"])
+
+# Session state persists across reruns within a session
+if "history" not in st.session_state:
+    st.session_state.history = []
+
+# Display chat messages
+for msg in st.session_state.history:
+    with st.chat_message(msg["role"]):
+        st.write(msg["content"])
+
+# Chat input
+if prompt := st.chat_input("Ask me anything about Python..."):
+    st.session_state.history.append({"role":"user","content":prompt})
+    with st.chat_message("user"):
+        st.write(prompt)
+    with st.chat_message("assistant"):
+        with st.spinner("Thinking..."):
+            r = client.messages.create(
+                model="claude-opus-4-5", max_tokens=512,
+                system="You are a Python for AI expert.",
+                messages=st.session_state.history
+            )
+            reply = r.content[0].text
+            st.write(reply)
+    st.session_state.history.append({"role":"assistant","content":reply})</code></pre>
+
+      <h2>Key Streamlit Widgets</h2>
+      <pre><code class="language-python">st.title("Title")              # large heading
+st.header("Header")            # medium heading
+st.write("Any text or data")   # universal display
+st.text_input("Label")         # single-line input
+st.text_area("Label", height=200)  # multi-line
+st.selectbox("Label", options) # dropdown
+st.slider("Label", 0, 100, 50) # slider with default 50
+st.checkbox("Enable feature")  # checkbox
+st.button("Submit")            # button (returns True when clicked)
+st.file_uploader("Upload PDF", type=["pdf","txt"])  # file upload
+st.image(img_path)             # display image
+st.dataframe(df)               # interactive pandas DataFrame
+st.code(code_string, language="python")  # syntax-highlighted code
+st.sidebar.write("Sidebar")   # put anything in the sidebar</code></pre>
+
+      <h2>Deploying to Streamlit Cloud</h2>
+      <p>1. Push your app to a public GitHub repository.<br>      2. Go to <a href="https://share.streamlit.io" target="_blank">share.streamlit.io</a> and sign in with GitHub.<br>      3. Click "New app", select your repo and <code>app.py</code>.<br>      4. Add your API key under Settings → Secrets: <code>ANTHROPIC_API_KEY = "sk-ant-..."</code><br>      5. Deploy — your app gets a public URL in ~60 seconds.</p>
+
+    </div>
+
+    <div class="tab-panel" data-panel="lab" style="display:none">
+      <div class="lab-section">
+        <div class="lab-header">
+          <h2><i class="fas fa-flask"></i> Lab: Build an AI Writing Assistant</h2>
+          <p>Build a Streamlit app that helps users write, rewrite, and improve text using Claude.</p>
+        </div>
+        <div class="lab-steps">
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">1</span><h3>Create the app</h3></div>
+            <div class="lab-step-body">
+              <p>Install Streamlit and create <code>writing_app.py</code>:</p>
+              <pre><code class="language-python">%%writefile writing_app.py
+import streamlit as st
+import anthropic, os
+
+st.set_page_config(page_title="AI Writing Assistant", page_icon="+")
+st.title("AI Writing Assistant")
+
+api_key = os.environ.get("ANTHROPIC_API_KEY","")
+client = anthropic.Anthropic(api_key=api_key)
+
+task = st.selectbox("Task", [
+    "Make it more professional",
+    "Make it simpler (ELI5)",
+    "Fix grammar and spelling",
+    "Make it shorter",
+    "Make it more engaging",
+])
+
+text = st.text_area("Your text:", height=200, placeholder="Paste your text here...")
+
+if st.button("Improve Text") and text.strip():
+    with st.spinner("Improving..."):
+        r = client.messages.create(
+            model="claude-opus-4-5", max_tokens=600,
+            messages=[{"role":"user","content":f"{task}:\n\n{text}"}]
+        )
+        st.subheader("Improved Version:")
+        st.write(r.content[0].text)
+        st.download_button("Download", r.content[0].text, "improved.txt")</code></pre>
+            </div>
+          </div>
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">2</span><h3>Run the app</h3></div>
+            <div class="lab-step-body">
+              <p>In your terminal (not Colab):</p>
+              <pre><code class="language-python">pip install streamlit anthropic
+ANTHROPIC_API_KEY=your_key streamlit run writing_app.py</code></pre>
+              <p>Your browser opens automatically at <strong>http://localhost:8501</strong></p>
+            </div>
+          </div>
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">3</span><h3>Add a word count metric</h3></div>
+            <div class="lab-step-body">
+              <p>Add these lines before the text area in your app:</p>
+              <pre><code class="language-python">col1, col2, col3 = st.columns(3)
+if text:
+    col1.metric("Words", len(text.split()))
+    col2.metric("Characters", len(text))
+    col3.metric("Est. tokens", len(text) // 4)</code></pre>
+            </div>
+          </div>
+          <div class="lab-step">
+            <div class="lab-step-header"><span class="lab-step-num">4</span><h3>Deploy to Streamlit Cloud</h3></div>
+            <div class="lab-step-body">
+              <p>Push to GitHub, then go to <a href="https://share.streamlit.io" target="_blank">share.streamlit.io</a>. Connect your repo, add your API key as a secret, and deploy. Share the public URL with anyone!</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="tab-panel" data-panel="quiz" style="display:none">
+      <div id="quiz-container"></div>
+    </div>
+
+    <div class="session-nav-buttons">
+      <a href="/Python-for-AI/sessions/advanced/19-flask-api.html" class="session-nav-btn prev" id="prev-session">
+        <span class="nav-label">Previous</span>
+        <span class="nav-title">← Wrap AI in a Flask API</span>
+      </a>
+      <a href="/Python-for-AI/sessions/advanced/21-ai-data-pipeline.html" class="session-nav-btn next" id="next-session">
+        <span class="nav-label">Next</span>
+        <span class="nav-title">Build an AI Data Pipeline →</span>
+      </a>
+    </div>
+  </main>
+</div>
+<div id="footer-placeholder"></div>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+<script src="/Python-for-AI/assets/js/progress.js"></script>
+<script src="/Python-for-AI/assets/js/quiz.js"></script>
+<script src="/Python-for-AI/assets/js/lab.js"></script>
+<script src="/Python-for-AI/assets/js/session.js"></script>
+<script src="/Python-for-AI/assets/js/main.js"></script>
+<script>
+window.SESSION_META = {
+  id: 'py-20',
+  title: 'Build AI Web Apps with Streamlit',
+  section: 'advanced',
+  quizData: [
+    { id:'q1', type:'mcq', question:'How do you persist data across Streamlit reruns (e.g., chat history)?',
+      options:[
+        {text:'st.session_state["key"] = value',correct:true},
+        {text:'global variables in the script',correct:false},
+        {text:'st.cache_data()',correct:false},
+        {text:'st.persist(value)',correct:false},
+      ],
+      explanation:'Streamlit reruns the entire script on every interaction. session_state is a dictionary that persists across reruns within a user session.' },
+    { id:'q2', type:'mcq', question:'How do you securely store API keys in a Streamlit Cloud app?',
+      options:[
+        {text:'Settings → Secrets in the Streamlit Cloud dashboard, accessed via st.secrets["KEY"]',correct:true},
+        {text:'Hardcode them in the Python file',correct:false},
+        {text:'Put them in a .env file committed to GitHub',correct:false},
+        {text:'Use st.password_input() to ask users',correct:false},
+      ],
+      explanation:'Streamlit Cloud provides a Secrets manager. Keys stored there are available as st.secrets["KEY"] and never exposed in code.' },
+    { id:'q3', type:'mcq', question:'Which Streamlit element creates a chat input box at the bottom of the page?',
+      options:[
+        {text:'st.chat_input("placeholder")',correct:true},
+        {text:'st.text_input("Chat:", key="chat")',correct:false},
+        {text:'st.input_box("Chat")',correct:false},
+        {text:'st.message_input()',correct:false},
+      ],
+      explanation:'st.chat_input() creates a sticky chat input bar at the bottom, similar to ChatGPT. Use with st.chat_message() for full chat UI.' },
+    { id:'q4', type:'truefalse', question:'Streamlit requires writing HTML and CSS to create interactive data science apps.',
+      correctAnswer:false,
+      explanation:'Streamlit is pure Python. All UI elements (widgets, charts, tables) are created with Python function calls. No HTML/CSS needed.' },
+    { id:'q5', type:'mcq', question:'What command runs a Streamlit app?',
+      options:[
+        {text:'streamlit run app.py',correct:true},
+        {text:'python app.py --streamlit',correct:false},
+        {text:'streamlit start app',correct:false},
+        {text:'flask run app.py',correct:false},
+      ],
+      explanation:'streamlit run app.py starts the Streamlit server and opens your browser automatically at localhost:8501.' },
+  ]
+};
+</script>
+</body>
+</html>
